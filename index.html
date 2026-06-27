@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LinguaGoWords Dashboard</title>
-    <!-- Telegram Web App Script -->
+    <title>LinguaGoWords - Dashboard</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
@@ -30,175 +29,116 @@
             user-select: none;
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
+        .header { text-align: center; margin-bottom: 15px; }
+        .title { font-size: 22px; font-weight: 700; margin: 5px 0; }
+        .subtitle { font-size: 13px; color: var(--tg-theme-hint-color); margin: 0; }
 
-        .welcome-text {
-            font-size: 20px;
-            font-weight: 700;
-            margin: 5px 0;
-        }
-
-        .subtitle {
-            font-size: 13px;
-            color: var(--tg-theme-hint-color);
-            margin: 0;
-        }
-
-        /* Stat kartochkalari paneli */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .stat-box {
+        /* Asosiy menyu bosh sahifasi */
+        .main-menu { display: flex; flex-direction: column; gap: 12px; flex-grow: 1; justify-content: center; }
+        .main-btn {
             background: var(--card-bg);
-            padding: 12px;
-            border-radius: 12px;
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.03);
-        }
-
-        .stat-val {
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 20px;
+            border-radius: 15px;
             font-size: 18px;
-            font-weight: bold;
-            color: var(--tg-theme-button-color);
-        }
-
-        .stat-lbl {
-            font-size: 11px;
-            color: var(--tg-theme-hint-color);
-            margin-top: 4px;
-        }
-
-        /* Bot funksiyalari uchun menyu tugmalari */
-        .menu-section {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 25px;
-        }
-
-        .menu-item {
-            background: var(--card-bg);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 14px;
-            border-radius: 12px;
+            font-weight: 600;
+            color: var(--tg-theme-text-color);
+            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: space-between;
+        }
+
+        /* Darajalar paneli (Grid) */
+        .grid-container { display: none; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+        .level-btn {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 22px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--tg-theme-text-color);
             cursor: pointer;
-            transition: transform 0.1s ease, background 0.2s ease;
+            text-align: center;
         }
 
-        .menu-item:active {
-            transform: scale(0.98);
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .menu-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .menu-icon {
-            font-size: 22px;
-        }
-
-        .menu-title {
-            font-size: 15px;
-            font-weight: 600;
-        }
-
-        .arrow {
-            color: var(--tg-theme-hint-color);
-            font-size: 14px;
-        }
-
-        /* Asosiy Yopish tugmasi */
-        .close-btn {
-            background-color: var(--tg-theme-button-color);
-            color: var(--tg-theme-button-text-color);
-            border: none;
-            padding: 14px;
+        /* Test turlari paneli */
+        .test-type-container { display: none; flex-direction: column; gap: 10px; }
+        .type-btn {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 15px;
             border-radius: 12px;
             font-size: 15px;
             font-weight: 600;
-            width: 100%;
+            color: var(--tg-theme-text-color);
             cursor: pointer;
+            text-align: left;
         }
+
+        .action-btn:active, .level-btn:active, .type-btn:active, .main-btn:active {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .nav-btn {
+            background-color: var(--tg-theme-button-color);
+            color: var(--tg-theme-button-text-color);
+            border: none; padding: 14px; border-radius: 12px;
+            font-size: 15px; font-weight: 600; width: 100%; cursor: pointer;
+            margin-top: 10px;
+        }
+        .back-btn { background-color: transparent; color: var(--tg-theme-hint-color); border: 1px solid var(--tg-theme-hint-color); display: none; }
     </style>
 </head>
 <body>
 
-    <div>
-        <!-- Yuqori qism -->
-        <div class="header">
-            <p class="subtitle">LinguaGoWords Portfolio</p>
-            <div class="welcome-text" id="username">Foydalanuvchi</div>
+    <div class="header">
+        <p class="subtitle" id="flow-title">LinguaGoWords Dashboard</p>
+        <div class="title" id="page-title">Asosiy Menyu</div>
+    </div>
+
+    <!-- 1-BOSQICH: ASOSIY DEYSHBORD -->
+    <div id="mainMenu" class="main-menu">
+        <div class="main-btn" onclick="openWordsFlow()">
+            <span>📚 Words (So'zlar)</span>
+            <span>➔</span>
         </div>
-
-        <!-- Botdan kelgan dinamik statistika (Xohlasangiz link orqali uzatasiz) -->
-        <div class="stats-grid">
-            <div class="stat-box">
-                <div class="stat-val" id="user-words">0</div>
-                <div class="stat-lbl">Yodlangan so'zlar</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-val" id="user-level">A1</div>
-                <div class="stat-lbl">Sizning darajangiz</div>
-            </div>
-        </div>
-
-        <!-- Botning ichki funksiyalariga eltuvchi tugmalar -->
-        <div class="menu-section">
-            <div class="menu-item" onclick="sendToBot('🚀 Kurslarni boshlash')">
-                <div class="menu-info">
-                    <span class="menu-icon">📚</span>
-                    <span class="menu-title">Darslarni Boshlash</span>
-                </div>
-                <span class="arrow">➔</span>
-            </div>
-
-            <div class="menu-item" onclick="sendToBot('📝 Kundalik Test')">
-                <div class="menu-info">
-                    <span class="menu-icon">✍️</span>
-                    <span class="menu-title">O'zini sinash (Quiz)</span>
-                </div>
-                <span class="arrow">➔</span>
-            </div>
-
-            <div class="menu-item" onclick="sendToBot('📊 Mening Statistikam')">
-                <div class="menu-info">
-                    <span class="menu-icon">📈</span>
-                    <span class="menu-title">Reyting va Statistika</span>
-                </div>
-                <span class="arrow">➔</span>
-            </div>
-
-            <div class="menu-item" onclick="sendToBot('⚙️ Sozlamalar')">
-                <div class="menu-info">
-                    <span class="menu-icon">⚙️</span>
-                    <span class="menu-title">Tilni o'zgartirish</span>
-                </div>
-                <span class="arrow">➔</span>
-            </div>
+        <div class="main-btn" onclick="openTestFlow()">
+            <span>📝 Test (O'zini sinash)</span>
+            <span>➔</span>
         </div>
     </div>
 
-    <button class="close-btn" onclick="tg.close()">Orqaga qaytish</button>
+    <!-- 2-BOSQICH: DARAJALARNI TANLASH (WORDS VA TEST UCHUN UMUMIY) -->
+    <div id="levelsGrid" class="grid-container">
+        <div class="level-btn" onclick="selectLevel('A1')">A1</div>
+        <div class="level-btn" onclick="selectLevel('A2')">A2</div>
+        <div class="level-btn" onclick="selectLevel('B1')">B1</div>
+        <div class="level-btn" onclick="selectLevel('B2')">B2</div>
+        <div class="level-btn" onclick="selectLevel('C1') font-size:16px;">C1</div>
+        <div class="level-btn" onclick="selectLevel('C2') font-size:16px;">C2</div>
+        <div class="level-btn" style="grid-column: span 2;" onclick="selectLevel('IELTS')">📘 IELTS Section</div>
+    </div>
+
+    <!-- 3-BOSQICH: TEST TURINI TANLASH -->
+    <div id="testTypes" class="test-type-container">
+        <div class="type-btn" onclick="finalizeTest('Uzbek translation (3 options)')">🇺🇿 Uzbek translation (3 options)</div>
+        <div class="type-btn" onclick="finalizeTest('Write in English')">✍️ Write in English</div>
+        <div class="type-btn" onclick="finalizeTest('Fill in the blank')">📝 Fill in the blank</div>
+    </div>
+
+    <!-- NAVIGATSIYA TUGMALARI -->
+    <div>
+        <button id="backBtn" class="nav-btn back-btn" onclick="goBack()">⬅ Ortga qaytish</button>
+        <button id="closeBtn" class="nav-btn" onclick="tg.close()">Yopish</button>
+    </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Telegram ranglariga moslashish
+        // Telegram rang sozlamalari
         if (tg.backgroundColor) {
             document.documentElement.style.setProperty('--tg-theme-bg-color', tg.backgroundColor);
             document.documentElement.style.setProperty('--tg-theme-text-color', tg.textColor);
@@ -207,27 +147,66 @@
             document.documentElement.style.setProperty('--tg-theme-hint-color', tg.hintColor);
         }
 
-        // Foydalanuvchi ismini chiqarish
-        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            document.getElementById('username').textContent = "Salom, " + tg.initDataUnsafe.user.first_name + "!";
+        let currentFlow = ""; // "words" yoki "test"
+        let selectedLevel = ""; 
+
+        const pageTitle = document.getElementById('page-title');
+        const flowTitle = document.getElementById('flow-title');
+        const mainMenu = document.getElementById('mainMenu');
+        const levelsGrid = document.getElementById('levelsGrid');
+        const testTypes = document.getElementById('testTypes');
+        const backBtn = document.getElementById('backBtn');
+
+        function openWordsFlow() {
+            currentFlow = "words";
+            mainMenu.style.display = "none";
+            levelsGrid.style.display = "grid";
+            backBtn.style.display = "block";
+            flowTitle.textContent = "📚 Words bo'limi";
+            pageTitle.textContent = "Darajani tanlang:";
         }
 
-        // --- ORTIQCHA KODLARSIZ BOTGA ULASH LOGIKASI ---
-        
-        // URL manzildan parametrlarni o'qib olish funksiyasi (Masalan: so'zlar soni yoki darajani ko'rsatish uchun)
-        const urlParams = new URLSearchParams(window.location.search);
-        const words = urlParams.get('words') || '0'; 
-        const level = urlParams.get('level') || 'A1';
-        
-        document.getElementById('user-words').textContent = words;
-        document.getElementById('user-level').textContent = level;
+        function openTestFlow() {
+            currentFlow = "test";
+            mainMenu.style.display = "none";
+            levelsGrid.style.display = "grid";
+            backBtn.style.display = "block";
+            flowTitle.textContent = "📝 Test bo'limi";
+            pageTitle.textContent = "Test darajasini tanlang:";
+        }
 
-        // Tugma bosilganda botga xabar yuborish funksiyasi
-        function sendToBot(commandText) {
-            // Tizim botga ushbu matnni yuboradi
-            tg.sendData(commandText);
-            // Va oynani avtomatik yopadi
+        function selectLevel(level) {
+            selectedLevel = level;
+            if (currentFlow === "words") {
+                // Skrinshot 33 dagi kabi to'g'ridan-to'g'ri botga darajani yuboradi
+                tg.sendData(level);
+                tg.close();
+            } else if (currentFlow === "test") {
+                // Test turi bosqichiga o'tish (Skrinshot 37 dagi kabi)
+                levelsGrid.style.display = "none";
+                testTypes.style.display = "flex";
+                pageTitle.textContent = "Test turini tanlang:";
+            }
+        }
+
+        function finalizeTest(type) {
+            // Skrinshot 37 dagi text formatiga moslab botga signal uzatish
+            tg.sendData(`Test — Level: ${selectedLevel} — ${type}`);
             tg.close();
+        }
+
+        function goBack() {
+            if (testTypes.style.display === "flex") {
+                testTypes.style.display = "none";
+                levelsGrid.style.display = "grid";
+                pageTitle.textContent = "Test darajasini tanlang:";
+            } else {
+                levelsGrid.style.display = "none";
+                mainMenu.style.display = "flex";
+                backBtn.style.display = "none";
+                flowTitle.textContent = "LinguaGoWords Dashboard";
+                pageTitle.textContent = "Asosiy Menyu";
+            }
         }
     </script>
 </body>
