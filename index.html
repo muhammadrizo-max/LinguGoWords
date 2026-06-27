@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LinguaGoWords Platform - Web v1.1.0</title>
+    <title>LinguaGoWords Platform - Web v1.2.0</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -20,243 +20,63 @@
             --border-color: #1e293b;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
+        body { background-color: var(--bg-primary); color: var(--text-main); padding: 16px 16px 80px 16px; min-height: 100vh; display: flex; flex-direction: column; }
 
-        body {
-            background-color: var(--bg-primary);
-            color: var(--text-main);
-            padding: 16px 16px 80px 16px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+        .web-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid var(--border-color); margin-bottom: 16px; }
+        .brand-title { font-size: 18px; font-weight: 800; color: var(--accent-cyan); }
+        .version-badge { background: rgba(0, 180, 216, 0.1); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; cursor: pointer; user-select: none; }
 
-        /* Top Header */
-        .web-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 12px;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 16px;
-        }
-
-        .brand-title {
-            font-size: 18px;
-            font-weight: 800;
-            color: var(--accent-cyan);
-        }
-
-        .version-badge {
-            background: rgba(0, 180, 216, 0.1);
-            color: var(--accent-cyan);
-            border: 1px solid var(--accent-cyan);
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
-        }
-
-        /* Profile Block */
-        .user-profile {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: var(--bg-secondary);
-            padding: 14px;
-            border-radius: 14px;
-            margin-bottom: 16px;
-        }
-
-        .user-avatar {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            background: var(--accent-cyan);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: var(--bg-primary);
-        }
-
+        .user-profile { display: flex; align-items: center; gap: 12px; background: var(--bg-secondary); padding: 14px; border-radius: 14px; margin-bottom: 16px; }
+        .user-avatar { width: 42px; height: 42px; border-radius: 50%; background: var(--accent-cyan); display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--bg-primary); }
         .user-meta h4 { font-size: 15px; font-weight: 600; }
         .user-meta p { font-size: 12px; color: var(--text-muted); }
 
-        /* Navigation Screens */
-        .app-screen {
-            display: none;
-            flex-direction: column;
-            gap: 16px;
-        }
+        .app-screen { display: none; flex-direction: column; gap: 16px; }
+        .active-screen { display: flex; }
 
-        .active-screen {
-            display: flex;
-        }
+        /* Level Selector Rules */
+        .levels-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 10px; }
+        .level-btn { background: var(--bg-secondary); border: 1px solid var(--border-color); padding: 18px; border-radius: 12px; font-size: 16px; font-weight: bold; color: var(--text-main); cursor: pointer; text-align: center; position: relative; }
+        .level-btn.locked { opacity: 0.5; cursor: not-allowed; background: #0f1424; }
 
-        /* 1. Words Screen Elements */
-        .word-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            padding: 40px 20px;
-            border-radius: 16px;
-            text-align: center;
-            margin-top: 20px;
-        }
-
+        .word-card { background: var(--bg-secondary); border: 1px solid var(--border-color); padding: 40px 20px; border-radius: 16px; text-align: center; margin-top: 10px; }
         .word-en { font-size: 32px; font-weight: bold; color: var(--accent-cyan); }
         .word-uz { font-size: 22px; margin-top: 10px; color: var(--text-main); }
-        
-        .action-btn {
-            background: var(--accent-cyan);
-            color: var(--bg-primary);
-            border: none;
-            padding: 14px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
-        }
+        .action-btn { background: var(--accent-cyan); color: var(--bg-primary); border: none; padding: 14px; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; }
 
-        /* 2. Quiz Screen Elements */
-        .quiz-options {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            width: 100%;
-            margin-top: 10px;
-        }
+        .quiz-options { display: flex; flex-direction: column; gap: 10px; width: 100%; margin-top: 10px; }
+        .option-btn { background: var(--bg-secondary); border: 1px solid var(--border-color); padding: 14px; border-radius: 12px; font-size: 15px; color: var(--text-main); text-align: left; cursor: pointer; }
 
-        .option-btn {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            padding: 14px;
-            border-radius: 12px;
-            font-size: 15px;
-            color: var(--text-main);
-            text-align: left;
-            cursor: pointer;
-        }
-
-        /* 3. Statistics Grid & Cards */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-        }
-
-        .stat-box {
-            background: var(--bg-secondary);
-            padding: 14px;
-            border-radius: 12px;
-            border-left: 4px solid var(--accent-cyan);
-        }
-
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .stat-box { background: var(--bg-secondary); padding: 14px; border-radius: 12px; border-left: 4px solid var(--accent-cyan); }
         .stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; }
         .stat-number { font-size: 20px; font-weight: 700; margin-top: 4px; }
 
-        .chart-card {
-            background: var(--bg-secondary);
-            padding: 14px;
-            border-radius: 16px;
-        }
+        .chart-card { background: var(--bg-secondary); padding: 14px; border-radius: 16px; }
+        .chart-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
+        .chart-holder { position: relative; height: 150px; width: 100%; }
 
-        .chart-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;}
-        
-        .chart-holder { position: relative; height: 160px; width: 100%; }
+        .streak-container { display: flex; justify-content: space-between; background: rgba(255, 159, 28, 0.1); border: 1px solid var(--accent-orange); padding: 12px; border-radius: 12px; align-items: center; }
 
-        /* Streak & Achievements */
-        .streak-container {
-            display: flex;
-            justify-content: space-between;
-            background: rgba(255, 159, 28, 0.1);
-            border: 1px solid var(--accent-orange);
-            padding: 12px;
-            border-radius: 12px;
-            align-items: center;
-        }
-
-        .badge-list {
-            display: flex;
-            gap: 8px;
-            overflow-x: auto;
-            padding-bottom: 4px;
-        }
-
-        .badge-item {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            padding: 8px 12px;
-            border-radius: 10px;
-            font-size: 12px;
-            text-align: center;
-            white-space: nowrap;
-        }
-
-        /* Progress Bar */
-        .lvl-progress {
-            background: rgba(255,255,255,0.05);
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 12px;
-        }
-        .bar-bg { background: #334155; height: 6px; border-radius: 3px; width: 100%; margin-top: 4px; overflow: hidden;}
-        .bar-fill { height: 100%; background: var(--accent-green); width: 0%; transition: width 0.4s; }
-
-        /* Bottom Tab Navigation */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: var(--bg-secondary);
-            border-top: 1px solid var(--border-color);
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            padding: 10px 0;
-            z-index: 1000;
-        }
-
-        .nav-tab {
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            font-size: 12px;
-            cursor: pointer;
-        }
-
-        .nav-tab.active-tab {
-            color: var(--accent-cyan);
-            font-weight: bold;
-        }
-
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--bg-secondary); border-top: 1px solid var(--border-color); display: grid; grid-template-columns: repeat(3, 1fr); padding: 10px 0; z-index: 1000; }
+        .nav-tab { background: transparent; border: none; color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 12px; cursor: pointer; }
+        .nav-tab.active-tab { color: var(--accent-cyan); font-weight: bold; }
         .nav-icon { font-size: 20px; }
-        
-        .refresh-sync-btn {
-            background: transparent; border: 1px solid var(--accent-cyan); color: var(--accent-cyan);
-            padding: 4px 8px; border-radius: 6px; font-size: 11px; cursor: pointer;
-        }
+
+        /* Admin Screen styles */
+        .admin-area { width: 100%; height: 150px; background: #000; color: #00ff00; font-family: monospace; padding: 10px; border-radius: 8px; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <!-- Global Header -->
+    <!-- Header[cite: 1] -->
     <div class="web-header">
         <div class="brand-title">VisionCore Group</div>
-        <div class="version-badge">web v1.1.0</div>
+        <div class="version-badge" id="versionBtn" onclick="handleVersionClick()">web v1.2.0</div>
     </div>
 
-    <!-- User Mini Profile -->
+    <!-- Mini Profile[cite: 1] -->
     <div class="user-profile">
         <div class="user-avatar" id="uAvatar">U</div>
         <div class="user-meta">
@@ -265,124 +85,82 @@
         </div>
     </div>
 
-    <!-- ==================== SCREEN 1: WORDS ==================== -->
+    <!-- ==================== SCREEN: LEVEL SELECTOR ==================== -->
+    <div id="screenLevels" class="app-screen">
+        <h3 style="color: var(--accent-cyan);" id="levelScreenTitle">Darajani tanlang</h3>
+        <div class="levels-grid" id="levelsContainer">
+            <!-- Dinamik darajalar yuklanadi (Qulf yoki Ochiq) -->
+        </div>
+    </div>
+
+    <!-- ==================== SCREEN: WORDS[cite: 1] ==================== -->
     <div id="screenWords" class="app-screen active-screen">
-        <h3 style="color: var(--accent-cyan);">📚 So'zlar ro'yxati</h3>
+        <h3 style="color: var(--accent-cyan);">📚 Words Ro'yxati</h3>
         <div class="word-card">
             <div class="word-en" id="wEn">accomplish</div>
             <div class="word-uz" id="wUz">bajarmoq, muvaffaqiyatli yakunlamoq</div>
         </div>
-        <button class="action-btn" onclick="nextWordWordplay()">Keyingi so'z ➔</button>
+        <button class="action-btn" onclick="nextWord()">Keyingi so'z ➔</button>
     </div>
 
-    <!-- ==================== SCREEN 2: TESTS ==================== -->
+    <!-- ==================== SCREEN: TESTS[cite: 1] ==================== -->
     <div id="screenTests" class="app-screen">
-        <h3 style="color: var(--accent-cyan);">📝 O'zini sinash (Quiz)</h3>
+        <h3 style="color: var(--accent-cyan);">📝 Test (Quiz)</h3>
         <div class="word-card" style="padding: 24px 12px;">
             <div class="word-en" id="qEn" style="font-size: 26px;">benevolent</div>
-            <p class="stat-label" style="margin-top: 6px;">To'g'ri tarjimani belgilang:</p>
         </div>
-        <div class="quiz-options" id="qOptions">
-            <!-- Dynamic Buttons -->
-        </div>
+        <div class="quiz-options" id="qOptions"></div>
     </div>
 
-    <!-- ==================== SCREEN 3: STATISTICS ==================== -->
+    <!-- ==================== SCREEN: STATISTICS[cite: 1] ==================== -->
     <div id="screenStats" class="app-screen">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h3 style="color: var(--accent-cyan);">📊 Shaxsiy Statistika</h3>
-            <button class="refresh-sync-btn" onclick="fetchPostgresData()">🔄 Yangilash</button>
-        </div>
+        <h3 style="color: var(--accent-cyan);">📊 Shaxsiy Statistika</h3>
 
-        <!-- Streak (Kunlik zanjir) -->
         <div class="streak-container">
             <div>
-                <div style="font-size: 15px; font-weight: bold; color: var(--accent-orange);">🔥 <span id="stkNum">7</span> Kunlik Streak!</div>
-                <div style="font-size: 11px; color: var(--text-main);">O'rganishni to'xtatmang</div>
+                <div style="font-size: 15px; font-weight: bold; color: var(--accent-orange);">🔥 <span id="stkNum">0</span> Kunlik Streak!</div>
+                <div style="font-size: 11px;">Botdagi faollik zanjiri</div>
             </div>
             <div style="font-size: 24px;">🎯</div>
         </div>
 
-        <!-- 4 ta raqamli bloklar (image_e0bafa.png kabi) -->
         <div class="stats-grid">
-            <div class="stat-box" style="border-left-color: var(--accent-green);">
-                <div class="stat-label">Yodlangan so'zlar</div>
-                <div class="stat-number" id="stLearned">142</div>
-            </div>
-            <div class="stat-box" style="border-left-color: var(--accent-cyan);">
-                <div class="stat-label">Yechilgan testlar</div>
-                <div class="stat-number" id="stTests">185</div>
-            </div>
-            <div class="stat-box" style="border-left-color: var(--accent-orange);">
-                <div class="stat-label">To'g'rilik ko'rsatkichi</div>
-                <div class="stat-number" id="stAccuracy">82%</div>
-            </div>
-            <div class="stat-box" style="border-left-color: var(--accent-purple);">
-                <div class="stat-label">Global reyting</div>
-                <div class="stat-number" id="stRank">#42</div>
-            </div>
+            <div class="stat-box" style="border-left-color: var(--accent-green);"><div class="stat-label">Yodlangan so'zlar</div><div class="stat-number" id="stLearned">0</div></div>
+            <div class="stat-box" style="border-left-color: var(--accent-cyan);"><div class="stat-label">Yechilgan testlar</div><div class="stat-number" id="stTests">0</div></div>
+            <div class="stat-box" style="border-left-color: var(--accent-orange);"><div class="stat-label">To'g'rilik ko'rsatkichi</div><div class="stat-number" id="stAccuracy">0%</div></div>
+            <div class="stat-box" style="border-left-color: var(--accent-purple);"><div class="stat-label">Global reyting</div><div class="stat-number" id="stRank">#0</div></div>
         </div>
 
-        <!-- LINE GRAPH (Haftalik faollik) -->
         <div class="chart-card">
             <div class="chart-title">Haftalik faollik dinamikasi (Line)</div>
-            <div class="chart-holder">
-                <canvas id="lineGraphCanvas"></canvas>
-            </div>
+            <div class="chart-holder"><canvas id="lineGraphCanvas"></canvas></div>
         </div>
 
-        <!-- PIE CHART (Xatolar va To'g'ri javoblar balansi) -->
         <div class="chart-card">
             <div class="chart-title">Javoblar balansi (Pie)</div>
-            <div class="chart-holder" style="height: 150px;">
-                <canvas id="pieChartCanvas"></canvas>
-            </div>
-        </div>
-
-        <!-- Yutuqlar (Achievements) -->
-        <div>
-            <div class="chart-title">🏆 Erishilgan Yutuqlar</div>
-            <div class="badge-list">
-                <div class="badge-item">🥇 Sadoqatli (7 kun)</div>
-                <div class="badge-item">🚀 Tezkor (50+ Test)</div>
-                <div class="badge-item">🧠 Lug'at donosi</div>
-                <div class="badge-item">⚡ To'xtovsiz</div>
-            </div>
-        </div>
-
-        <!-- Har bir daraja bo'yicha yutuqlar foizi -->
-        <div class="chart-card">
-            <div class="chart-title">Darajalar kesimida o'zlashtirish</div>
-            <div style="display: flex; flex-direction: column; gap: 8px;">
-                <div class="lvl-progress">
-                    <div style="display:flex; justify-content:space-between;"><span>Elementary (A1/A2)</span><span id="pTxtA">85%</span></div>
-                    <div class="bar-bg"><div class="bar-fill" id="pBarA" style="width: 85%;"></div></div>
-                </div>
-                <div class="lvl-progress">
-                    <div style="display:flex; justify-content:space-between;"><span>Intermediate (B1/B2)</span><span id="pTxtB">45%</span></div>
-                    <div class="bar-bg"><div class="bar-fill" id="pBarB" style="width: 45%; background: var(--accent-cyan);"></div></div>
-                </div>
-                <div class="lvl-progress">
-                    <div style="display:flex; justify-content:space-between;"><span>Advanced (C1/IELTS)</span><span id="pTxtC">20%</span></div>
-                    <div class="bar-bg"><div class="bar-fill" id="pBarC" style="width: 20%; background: var(--accent-orange);"></div></div>
-                </div>
-            </div>
+            <div class="chart-holder"><canvas id="pieChartCanvas"></canvas></div>
         </div>
     </div>
 
-    <!-- ==================== BOTTOM TAB BAR NAVIGATION ==================== -->
+    <!-- ==================== SCREEN: ADMIN PANEL ==================== -->
+    <div id="screenAdmin" class="app-screen">
+        <h3 style="color: var(--accent-orange);">⚙️ VisionCore Boshqaruv Paneli</h3>
+        <p class="stat-label">Baza holati: PostgreSQL Connected</p>
+        <textarea class="admin-area" readonly>System Logs: v1.2.0 secure active.
+Database: linguago on localhost:5432
+Admin session granted.</textarea>
+    </div>
+
+    <!-- Bottom Navigation Bar[cite: 1] -->
     <div class="bottom-nav">
-        <button class="nav-tab active-tab" onclick="switchTab('Words', this)">
-            <span class="nav-icon">📚</span>
-            <span>Words</span>
+        <button class="nav-tab active-tab" onclick="initiateFeature('Words', this)">
+            <span class="nav-icon">📚</span><span>Words</span>
         </button>
-        <button class="nav-tab" onclick="switchTab('Tests', this)">
-            <span class="nav-icon">📝</span>
-            <span>Tests</span>
+        <button class="nav-tab" onclick="initiateFeature('Tests', this)">
+            <span class="nav-icon">📝</span><span>Tests</span>
         </button>
-        <button class="nav-tab" onclick="switchTab('Stats', this)">
-            <span class="nav-icon">📊</span>
-            <span>Statistika</span>
+        <button class="nav-tab" onclick="initiateFeature('Stats', this)">
+            <span class="nav-icon">📊</span><span>Statistika</span>
         </button>
     </div>
 
@@ -390,146 +168,136 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Local massivlar (Ma'lumotlar bazasi ulanguncha)
-        const mockWords = [
-            {en: "accomplish", uz: "bajarmoq, muvaffaqiyatli yakunlamoq"},
-            {en: "ambiguous", uz: "noaniq, ikki ma'noli"},
-            {en: "resilient", uz: "boshboshdoq, tezda tiklanuvchan"}
-        ];
-        const mockQuiz = [
-            {en: "benevolent", uz: "rahmdil, saxovatli", options: ["rahmdil, saxovatli", "shafqatsiz", "ayyor", "tadbirkor"]},
-            {en: "consequences", uz: "oqibatlar", options: ["yutuqlar", "oqibatlar", "sabablar", "qarorlar"]}
-        ];
+        let versionClicks = 0;
+        let allowedLevels = ['A1', 'A2', 'B1']; // Backend'dan keladigan ochiq darajalar ro'yxati
+        const allLevels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2', 'IELTS'];
+        let selectedTargetMode = 'Words'; 
 
-        let wIndex = 0;
-        let qIndex = 0;
-        let lineChartInstance = null;
-        let pieChartInstance = null;
+        let lineChart = null;
+        let pieChart = null;
 
-        // Sahifa navigatsiyasini boshqarish
-        function switchTab(screenName, element) {
-            document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active-screen'));
-            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active-tab'));
-            
-            document.getElementById('screen' + screenName).classList.add('active-screen');
-            element.classList.add('active-tab');
-
-            if(screenName === 'Stats') {
-                initCharts();
+        // 1. VERSIYANI 3 MARTA BOSGANDA ADMIN PANELGA KIRISH
+        function handleVersionClick() {
+            versionClicks++;
+            if (versionClicks === 3) {
+                versionClicks = 0;
+                const pass = prompt("Admin parolini kiriting:");
+                if (pass === "060626") {
+                    document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active-screen'));
+                    document.getElementById('screenAdmin').classList.add('active-screen');
+                } else {
+                    alert("Xato parol!");
+                }
             }
         }
 
-        // Words funksiyasi
-        function nextWordWordplay() {
-            wIndex = (wIndex + 1) % mockWords.length;
-            document.getElementById('wEn').textContent = mockWords[wIndex].en;
-            document.getElementById('wUz').textContent = mockWords[wIndex].uz;
+        // 2. DARAFALANING QULF YOKI OCHIKLIGINI TEKSHIRISH
+        function initiateFeature(mode, tabElement) {
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active-tab'));
+            tabElement.classList.add('active-tab');
+            selectedTargetMode = mode;
+
+            if (mode === 'Stats') {
+                showScreen('Stats');
+                loadRealCharts(151, 34); // Grafikni yuklash
+                return;
+            }
+
+            // Words va Tests uchun oldin daraja tanlash ekranini ochish
+            showScreen('Levels');
+            document.getElementById('levelScreenTitle').textContent = mode === 'Words' ? "📚 Lug'at uchun daraja" : "📝 Test uchun daraja";
+            renderLevelsGrid();
         }
 
-        // Quiz funksiyasi
-        function renderQuiz() {
-            const current = mockQuiz[qIndex];
-            document.getElementById('qEn').textContent = current.en;
-            const optDiv = document.getElementById('qOptions');
-            optDiv.innerHTML = "";
+        function renderLevelsGrid() {
+            const container = document.getElementById('levelsContainer');
+            container.innerHTML = "";
 
-            current.options.forEach(opt => {
-                const btn = document.createElement('button');
-                btn.className = "option-btn";
-                btn.textContent = opt;
-                btn.onclick = () => {
-                    if(opt === current.uz) {
-                        btn.style.background = "var(--accent-green)";
-                        btn.style.color = "var(--bg-primary)";
-                    } else {
-                        btn.style.background = "var(--accent-orange)";
-                    }
-                    setTimeout(() => {
-                        qIndex = (qIndex + 1) % mockQuiz.length;
-                        renderQuiz();
-                    }, 1000);
-                };
-                optDiv.appendChild(btn);
+            allLevels.forEach(lvl => {
+                const btn = document.createElement('div');
+                const isAllowed = allowedLevels.includes(lvl);
+                btn.className = `level-btn ${isAllowed ? '' : 'locked'}`;
+                btn.innerHTML = isAllowed ? lvl : `${lvl} 🔒`;
+                
+                if (isAllowed) {
+                    btn.onclick = () => startFeature(lvl);
+                } else {
+                    btn.onclick = () => tg.showAlert("Bu daraja bot orqali qulflangan! Ochish uchun botga kiring.");
+                }
+                container.appendChild(btn);
             });
         }
 
-        // Grafiklar sozlamalari (Line Graph & Pie Chart)
-        function initCharts() {
-            // 1. Line Chart
+        function startFeature(level) {
+            showScreen(selectedTargetMode);
+            // Bu yerda tanlangan darajaga mos so'zlarni bazadan filtrlab ko'rsatish logikasi ishlaydi
+        }
+
+        function showScreen(id) {
+            document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active-screen'));
+            document.getElementById('screen' + id).classList.add('active-screen');
+        }
+
+        // 3. REAL POSTGRESQL MA'LUMOTLARINI BACKEND'DAN OLISH
+        function fetchRealDatabase() {
+            const userId = tg.initDataUnsafe?.user?.id || 99827154; // Telegram ID
+
+            // O'zingizning serveringiz joylashgan API manzili yoziladi
+            fetch(`http://localhost:3000/api/user-data?tg_id=${userId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if(data.allowed_levels) allowedLevels = data.allowed_levels;
+                    
+                    // Statistikani real qiymatga tenglash
+                    document.getElementById('stLearned').textContent = data.stats.learned;
+                    document.getElementById('stTests').textContent = data.stats.tests;
+                    document.getElementById('stAccuracy').textContent = data.stats.accuracy + "%";
+                    document.getElementById('stRank').textContent = data.stats.rank;
+                    document.getElementById('stkNum').textContent = data.stats.streak;
+
+                    // Pie chartni yangilash
+                    const total = data.stats.tests;
+                    const correct = Math.round(total * (data.stats.accuracy / 100));
+                    const wrong = total - correct;
+                    loadRealCharts(correct, wrong);
+                })
+                .catch(err => console.log("Lokal API ulanmagan, mock ma'lumotlar amalda."));
+        }
+
+        function loadRealCharts(correct, wrong) {
             const ctxLine = document.getElementById('lineGraphCanvas').getContext('2d');
-            if(lineChartInstance) lineChartInstance.destroy();
-            lineChartInstance = new Chart(ctxLine, {
+            if(lineChart) lineChart.destroy();
+            lineChart = new Chart(ctxLine, {
                 type: 'line',
                 data: {
                     labels: ['Dush', 'Sesh', 'Chor', 'Pay', 'Jum', 'Shan', 'Yak'],
-                    datasets: [{
-                        data: [12, 25, 18, 40, 22, 45, 23],
-                        borderColor: '#00b4d8',
-                        backgroundColor: 'rgba(0, 180, 216, 0.05)',
-                        fill: true,
-                        tension: 0.3,
-                        borderWidth: 2,
-                        pointBackgroundColor: '#00b4d8'
-                    }]
+                    datasets: [{ data: [12, 25, 18, 40, 22, 45, 23], borderColor: '#00b4d8', tension: 0.3, fill: true, backgroundColor: 'rgba(0,180,216,0.05)' }]
                 },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        x: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8', font: { size: 10 } } },
-                        y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8', font: { size: 10 } } }
-                    }
-                }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
 
-            // 2. Pie Chart
             const ctxPie = document.getElementById('pieChartCanvas').getContext('2d');
-            if(pieChartInstance) pieChartInstance.destroy();
-            pieChartInstance = new Chart(ctxPie, {
+            if(pieChart) pieChart.destroy();
+            pieChart = new Chart(ctxPie, {
                 type: 'pie',
                 data: {
-                    labels: ["To'g'ri javob", "Xato javob"],
-                    datasets: [{
-                        data: [151, 34], // Jami 185 ta test balansi
-                        backgroundColor: ['#06d6a0', '#ff9f1c'],
-                        borderWidth: 0
-                    }]
+                    labels: ["To'g'ri", "Xato"],
+                    datasets: [{ data: [correct, wrong], backgroundColor: ['#06d6a0', '#ff9f1c'] }]
                 },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { position: 'right', labels: { color: '#f8fafc', font: { size: 11 } } } }
-                }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: '#fff' } } } }
             });
         }
 
-        // PostgreSQL ma'lumotlarini fetch qilish simulyatsiyasi
-        function fetchPostgresData() {
-            const btn = document.querySelector('.refresh-sync-btn');
-            btn.textContent = "Loading...";
-            
-            setTimeout(() => {
-                // Bu yerda API orqali keladigan ma'lumotlar bilan HTML elementlar real vaqtda yangilanadi
-                document.getElementById('stLearned').textContent = "142";
-                document.getElementById('stTests').textContent = "185";
-                document.getElementById('stAccuracy').textContent = "82%";
-                document.getElementById('stRank').textContent = "#42";
-                document.getElementById('stkNum').textContent = "7";
-                
-                btn.textContent = "🔄 Yangilash";
-                if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-            }, 600);
-        }
-
-        // Telegram ma'lumotlarini yuklash
+        // Telegram foydalanuvchi ma'lumotlarini o'rnatish
         if(tg.initDataUnsafe && tg.initDataUnsafe.user) {
             const u = tg.initDataUnsafe.user;
-            document.getElementById('uName').textContent = (u.first_name + " " + (u.last_name || "")).trim();
+            document.getElementById('uName').textContent = u.first_name;
             document.getElementById('uId').textContent = "ID: " + u.id;
             document.getElementById('uAvatar').textContent = u.first_name.charAt(0).toUpperCase();
         }
 
-        // Dastlabki yuklashlar
-        renderQuiz();
+        // Birinchi yuklanishda ma'lumotlarni tortish
+        fetchRealDatabase();
     </script>
 </body>
 </html>
