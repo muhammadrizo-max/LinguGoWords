@@ -357,7 +357,7 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        const ADMIN_PASSWORD = "vcore_admin_777";
+        const ADMIN_PASSWORD = "060626";
 
         // Standart boshlang'ich baza (Agar localStorage bo'sh bo'lsa)
         const defaultDatabase = {
@@ -397,7 +397,7 @@
         // Admin Panelga Parol orqali kirish va Real grafikni chizish
         function openAdmin() {
             const accessPass = prompt("Admin panelga kirish parolini kiriting:");
-            if (accessPass !== 060626) {
+            if (accessPass !== ADMIN_PASSWORD) {
                 alert("Xato parol! Ruxsat berilmadi.");
                 return;
             }
