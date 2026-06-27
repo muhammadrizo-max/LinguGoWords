@@ -16,7 +16,6 @@
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --border-color: #334155;
-            --card-bg: rgba(255, 255, 255, 0.05);
         }
 
         * {
@@ -197,7 +196,7 @@
 
         .admin-area {
             width: 100%;
-            height: 100px;
+            height: 120px;
             background: #090d16;
             color: #22c55e;
             border: 1px solid var(--border-color);
@@ -293,21 +292,18 @@
 
     <!-- 5. ADMIN PANEL: SMART ADVERTISING, PAYMENT ANALYTICS & SQL PARSER -->
     <div id="screenAdmin" class="screen">
-        <!-- Live Mini Statlar -->
         <div class="grid-stats">
             <div class="stat-card"><div class="stat-title">Foydalanuvchilar</div><div class="stat-value">12,480 ta</div></div>
             <div class="stat-card"><div class="stat-title">Konversiya (Ad)</div><div class="stat-value">4.8%</div></div>
         </div>
 
-        <!-- Grafiklar (Line & Pie) -->
         <div class="chart-wrapper">
             <canvas id="miniLineChart"></canvas>
         </div>
 
-        <!-- SQL Import Blok -->
         <div>
             <p class="subtitle" style="color: var(--accent-blue); margin-bottom: 4px;">SQL Ma'lumotlar bazasi (.sql):</p>
-            <textarea id="sqlInput" class="admin-area" placeholder="INSERT INTO words VALUES ('A1', 'apple', 'olma', 'olxo\'ri', 'anor', 'behi');"></textarea>
+            <textarea id="sqlInput" class="admin-area" placeholder="INSERT INTO words VALUES ('A1', 'apple', 'olma', 'olxo\'ri', 'anor', 'behi', 'tarvuz');"></textarea>
         </div>
         
         <label class="upload-label">
@@ -317,7 +313,7 @@
         
         <button class="nav-btn" style="background-color: var(--accent-blue);" onclick="processSQL()">Bazani Yangilash (Parse)</button>
         <button class="nav-btn" style="background: var(--accent-red); color: white;" onclick="clearDatabase()">Bazani Tozalash</button>
-        <p id="adminStatus" style="font-size: 12px; text-align: center; min-height: 16px;"></p>
+        <p id="adminStatus" style="font-size: 12px; text-align: center; min-height: 16px; font-weight: bold;"></p>
     </div>
 
     <!-- GLOBAL NAVIGATSIYA PASTI -->
@@ -330,7 +326,9 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Standart zaxira ma'lumotlar bazasi strukturalari
+        // Admin kirish paroli (Buni xohlaganingizga o'zgartirishingiz mumkin)
+        const ADMIN_PASSWORD = "vcore_admin_777";
+
         const defaultDatabase = {
             'A1': [{en: 'welcome', uz: 'xush kelibsiz', options: ['xush kelibsiz', 'hayr', 'ertaga']}],
             'A2': [], 'B1': [], 'B2': [], 'C1': [], 'C2': [], 'IELTS': []
@@ -342,15 +340,20 @@
         let currentIndex = 0;
         let chartInstance = null;
 
-        // Admin Panelga o'tish va Grafiklarni initsializatsiya qilish
+        // Admin Panelga Parol orqali kirish
         function openAdmin() {
+            const accessPass = prompt("Admin panelga kirish parolini kiriting:");
+            if (accessPass !== ADMIN_PASSWORD) {
+                alert("Xato parol! Ruxsat berilmadi.");
+                return;
+            }
+
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
             document.getElementById('screenAdmin').classList.add('active-screen');
             document.getElementById('backBtn').style.display = "block";
             document.getElementById('page-title').textContent = "Boshqaruv & Analitika";
             document.getElementById('flow-title').textContent = "Admin System";
             
-            // Chart.js render qilish qismi
             setTimeout(() => {
                 const ctx = document.getElementById('miniLineChart').getContext('2d');
                 if (chartInstance) { chartInstance.destroy(); }
@@ -380,7 +383,6 @@
             }, 50);
         }
 
-        // SQL Fayllarni o'qish logikasi
         function handleSQLFile(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -391,41 +393,53 @@
             reader.readAsText(file);
         }
 
-        // Matn yoki fayldan olingan SQL buyruqlarini pattern bo'yicha parse qilish
+        // To'g'rilangan universal dynamic SQL Parser
         function processSQL() {
             const sqlText = document.getElementById('sqlInput').value;
+            const status = document.getElementById('adminStatus');
             if(!sqlText.trim()) { alert("SQL matni kiritilmagan!"); return; }
 
-            // Regex formati: VALUES ('Daraja', 'English', 'Uzbek', 'Option1', 'Option2', 'Option3')
-            const regex = /VALUES\s*\(\s*'([^']+)'\s*,\s*'([^']+)'\s*,\s*'([^']+)'\s*,\s*'([^']+)'\s*,\s*'([^']+)'\s*,\s*'([^']+)'\s*\)/gi;
+            // Har qanday miqdordagi string elementlarni tirnoqlar ichidan ajratib oluvchi dynamic regex
+            const valuesBlockRegex = /VALUES\s*\(([^)]+)\)/gi;
             
             let match;
             let counter = 0;
             let newDb = {'A1':[], 'A2':[], 'B1':[], 'B2':[], 'C1':[], 'C2':[], 'IELTS':[]};
 
-            while ((match = regex.exec(sqlText)) !== null) {
-                const lvl = match[1].toUpperCase();
-                const en = match[2];
-                const uz = match[3];
-                const opts = [match[4], match[5], match[6]];
+            while ((match = valuesBlockRegex.exec(sqlText)) !== null) {
+                const rawValues = match[1];
+                // Vergul va tirnoqlar orqali massivga o'giramiz, har bir so'z atrofidagi tirnoqlarni tozalaymiz
+                const items = rawValues.split(',').map(item => item.trim().replace(/^'|'$/g, "").replace(/\\'/g, "'"));
+                
+                if (items.length >= 3) {
+                    const lvl = items[0].toUpperCase(); // A1, A2, IELTS...
+                    const en = items[1];
+                    const uz = items[2];
+                    
+                    // Qolgan barcha elementlar variantlar (options) hisoblanadi (3, 4 yoki undan ko'p bo'lishi mumkin)
+                    let options = items.slice(3);
+                    
+                    // Agar SQL ichida variantlar kam kiritilgan bo'lsa, avtomatik to'g'ri javobni ham qo'shamiz
+                    if (options.length === 0 || !options.includes(uz)) {
+                        options.unshift(uz);
+                    }
 
-                if (newDb[lvl]) {
-                    newDb[lvl].push({ en: en, uz: uz, options: opts });
-                    counter++;
+                    if (newDb[lvl]) {
+                        newDb[lvl].push({ en: en, uz: uz, options: options });
+                        counter++;
+                    }
                 }
             }
 
             if(counter > 0) {
                 wordsDatabase = newDb;
                 localStorage.setItem('lingua_db', JSON.stringify(wordsDatabase));
-                const status = document.getElementById('adminStatus');
                 status.style.color = "var(--accent-green)";
-                status.textContent = `Muvaffaqiyatli! ${counter} ta so'z bazaga yuklandi.`;
+                status.textContent = `Muvaffaqiyatli! ${counter} ta so'z muammosiz yuklandi.`;
                 document.getElementById('sqlInput').value = "";
             } else {
-                const status = document.getElementById('adminStatus');
                 status.style.color = "var(--accent-red)";
-                status.textContent = "Xatolik! VALUES('Daraja','en','uz','opt1','opt2','opt3') formatini tekshiring.";
+                status.textContent = "Xatolik! SQL sintaksisi mos kelmadi. VALUES ('A1', 'word', 'tarjima', 'opt1'...) ko'rinishida yozing.";
             }
         }
 
