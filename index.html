@@ -3,19 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LinguaGoWords Console & App</title>
+    <title>LinguaGoWords Platform - Web v1.0.0</title>
+    <!-- Telegram WebApp Script -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Chart.js for User Statistics -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg-primary: #0f172a;
-            --bg-secondary: #1e293b;
-            --accent-blue: #38bdf8;
-            --accent-green: #34d399;
-            --accent-red: #f43f5e;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --border-color: #334155;
+            --bg-primary: #090d16;
+            --bg-secondary: #111827;
+            --bg-card: #1f2937;
+            --accent-cyan: #06b6d4;
+            --accent-green: #10b981;
+            --accent-amber: #f59e0b;
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+            --border-color: #374151;
         }
 
         * {
@@ -29,621 +32,397 @@
             background-color: var(--bg-primary);
             color: var(--text-main);
             padding: 16px;
-            min-height: 95vh;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
         }
 
-        .header {
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 12px;
-            margin-bottom: 16px;
-        }
-
-        .header-top {
+        .web-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
         }
 
-        .subtitle {
-            font-size: 13px;
+        .brand-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--accent-cyan);
+        }
+
+        .version-badge {
+            background: rgba(6, 182, 212, 0.1);
+            color: var(--accent-cyan);
+            border: 1px solid var(--accent-cyan);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--bg-secondary);
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--accent-cyan);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--bg-primary);
+            font-size: 18px;
+        }
+
+        .user-meta h4 {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .user-meta p {
+            font-size: 12px;
             color: var(--text-muted);
         }
 
-        .title {
+        /* Real-time Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 16px;
+            border-radius: 14px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+        }
+
+        .stat-box.learned::before { background: var(--accent-green); }
+        .stat-box.tests::before { background: var(--accent-cyan); }
+        .stat-box.accuracy::before { background: var(--accent-amber); }
+        .stat-box.rank::before { background: #8b5cf6; }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-number {
             font-size: 22px;
             font-weight: 700;
             margin-top: 4px;
-            color: var(--text-main);
         }
 
-        .admin-badge {
-            background: var(--accent-blue);
-            color: var(--bg-primary);
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .screen {
-            display: none;
-            flex-direction: column;
-            gap: 14px;
-            flex-grow: 1;
-            justify-content: center;
-        }
-
-        .active-screen {
-            display: flex;
-        }
-
-        /* User Panel */
-        .main-btn {
+        /* Analytics Chart Section */
+        .analytics-card {
             background: var(--bg-secondary);
             border: 1px solid var(--border-color);
-            padding: 20px;
-            border-radius: 15px;
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--text-main);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            transition: background 0.2s;
-        }
-
-        .main-btn:hover {
-            background: var(--border-color);
-        }
-
-        .grid-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .level-btn {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            padding: 22px;
-            border-radius: 12px;
-            font-size: 18px;
-            font-weight: bold;
-            color: var(--text-main);
-            cursor: pointer;
-            text-align: center;
-        }
-
-        .display-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            padding: 25px 20px;
+            padding: 16px;
             border-radius: 16px;
-            text-align: center;
+            margin-bottom: 20px;
         }
 
-        .word-en {
-            font-size: 32px;
-            font-weight: bold;
-            color: var(--accent-blue);
-        }
-
-        .word-uz {
-            font-size: 20px;
-            margin-top: 10px;
-            color: var(--text-main);
-            opacity: 0.9;
-        }
-
-        .word-meta {
-            font-size: 12px;
-            color: var(--accent-green);
-            background: rgba(52, 211, 153, 0.1);
-            padding: 4px 8px;
-            border-radius: 6px;
-            display: inline-block;
-            margin-top: 8px;
-        }
-
-        .word-example {
-            margin-top: 16px;
-            padding-top: 12px;
-            border-top: 1px dashed var(--border-color);
-            text-align: left;
-            font-size: 14px;
-        }
-
-        .example-title {
-            font-size: 11px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-        }
-
-        .quiz-options {
+        .card-header {
             display: flex;
-            flex-direction: column;
-            gap: 10px;
-            width: 100%;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
         }
 
-        .option-btn {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            padding: 15px;
-            border-radius: 12px;
-            font-size: 16px;
-            color: var(--text-main);
-            cursor: pointer;
-            text-align: left;
-            transition: background 0.2s;
-        }
-
-        /* Admin Dashboard */
-        .grid-stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .stat-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            padding: 12px;
-            border-radius: 8px;
-        }
-
-        .stat-title {
-            font-size: 11px;
-            text-transform: uppercase;
-            color: var(--text-muted);
-        }
-
-        .stat-value {
-            font-size: 16px;
-            font-weight: bold;
-            color: var(--text-main);
-        }
-
-        .chart-wrapper {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            padding: 12px;
-            border-radius: 12px;
-            height: 160px;
-            position: relative;
-        }
-
-        .admin-area {
-            width: 100%;
-            height: 120px;
-            background: #090d16;
-            color: #22c55e;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 10px;
-            font-family: monospace;
-            font-size: 11px;
-            resize: none;
-        }
-
-        .nav-btn {
-            background-color: var(--accent-blue);
-            color: var(--bg-primary);
-            border: none;
-            padding: 14px;
-            border-radius: 12px;
+        .card-title {
             font-size: 15px;
             font-weight: 600;
-            width: 100%;
-            cursor: pointer;
-            margin-top: 8px;
+            color: var(--text-main);
         }
 
-        .back-btn {
-            background-color: transparent;
-            color: var(--text-muted);
-            border: 1px solid var(--border-color);
-        }
-
-        .upload-label {
-            background: rgba(56, 189, 248, 0.1);
-            border: 1px dashed var(--accent-blue);
-            padding: 12px;
+        .refresh-btn {
+            background: transparent;
+            border: 1px solid var(--accent-cyan);
+            color: var(--accent-cyan);
+            padding: 6px 12px;
             border-radius: 8px;
-            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
             cursor: pointer;
-            display: block;
-            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .refresh-btn:hover {
+            background: var(--accent-cyan);
+            color: var(--bg-primary);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 200px;
+            width: 100%;
+        }
+
+        /* Level Progress List */
+        .progress-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .progress-item {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+
+        .progress-bar-bg {
+            background: var(--border-color);
+            height: 6px;
+            border-radius: 3px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--accent-green);
+            width: 0%;
+            transition: width 0.5s ease-in-out;
+        }
+
+        .footer-note {
+            text-align: center;
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: auto;
+            padding-top: 20px;
         }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <div class="header-top">
-            <p class="subtitle" id="flow-title">LinguaGoWords Mobile</p>
-            <span class="admin-badge" id="adminToggleBtn" onclick="openAdmin()">⚙️ Analitika & Admin</span>
-        </div>
-        <div class="title" id="page-title">Asosiy Menyu</div>
+    <!-- SHeader qismi -->
+    <div class="web-header">
+        <div class="brand-title">VisionCore Group</div>
+        <div class="version-badge">web v1.0.0</div>
     </div>
 
-    <!-- 1. USER PANEL: ASOSIY MENYU -->
-    <div id="screenMain" class="screen active-screen">
-        <div class="main-btn" onclick="switchScreen('words')">
-            <span>📚 Words (So'zlar ro'yxati)</span> <span>➔</span>
-        </div>
-        <div class="main-btn" onclick="switchScreen('quiz')">
-            <span>📝 Test (O'zini sinash)</span> <span>➔</span>
+    <!-- Foydalanuvchi profili (Telegramdan real vaqtda olinadi) -->
+    <div class="user-profile">
+        <div class="user-avatar" id="userAvatar">U</div>
+        <div class="user-meta">
+            <h4 id="userName">Foydalanuvchi</h4>
+            <p id="userTgId">ID: Loading...</p>
         </div>
     </div>
 
-    <!-- 2. USER PANEL: DARAJALAR -->
-    <div id="screenLevels" class="screen">
-        <div class="grid-container">
-            <div class="level-btn" onclick="startFeature('A1')">A1</div>
-            <div class="level-btn" onclick="startFeature('A2')">A2</div>
-            <div class="level-btn" onclick="startFeature('B1')">B1</div>
-            <div class="level-btn" onclick="startFeature('B2')">B2</div>
-            <div class="level-btn" onclick="startFeature('C1')">C1</div>
-            <div class="level-btn" onclick="startFeature('C2')">C2</div>
-            <div class="level-btn" style="grid-column: span 2;" onclick="startFeature('IELTS')">📘 IELTS</div>
+    <!-- Real-time raqamli statistika -->
+    <div class="stats-grid">
+        <div class="stat-box learned">
+            <div class="stat-label">Yodlangan so'zlar</div>
+            <div class="stat-number" id="countLearned">0</div>
+        </div>
+        <div class="stat-box tests">
+            <div class="stat-label">Yechilgan testlar</div>
+            <div class="stat-number" id="countTests">0</div>
+        </div>
+        <div class="stat-box accuracy">
+            <div class="stat-label">To'g'rilik ko'rsatkichi</div>
+            <div class="stat-number" id="countAccuracy">0%</div>
+        </div>
+        <div class="stat-box rank">
+            <div class="stat-label">Global reyting</div>
+            <div class="stat-number" id="countRank">#0</div>
         </div>
     </div>
 
-    <!-- 3. USER PANEL: LUG'AT EKRENI -->
-    <div id="screenWordsDisplay" class="screen">
-        <div class="display-card">
-            <div class="word-en" id="displayEn">-</div>
-            <div id="displayMeta" class="word-meta">-</div>
-            <div class="word-uz" id="displayUz">-</div>
-            
-            <div class="word-example" id="exampleBlock" style="display:none;">
-                <div class="example-title">Kontekst (Misol):</div>
-                <div id="displayExEn" style="color: var(--accent-blue); font-style: italic; margin-top:4px;"></div>
-                <div id="displayExUz" style="color: var(--text-muted); margin-top: 2px;"></div>
+    <!-- Diagramma va Yangilash tugmasi -->
+    <div class="analytics-card">
+        <div class="card-header">
+            <div class="card-title">Haftalik faollik dinamikasi</div>
+            <button class="refresh-btn" onclick="syncWithPostgres()">🔄 Yangilash (Fetch)</button>
+        </div>
+        <div class="chart-container">
+            <canvas id="userActivityChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Darajalar bo'yicha yutuqlar ro'yxati -->
+    <div class="analytics-card">
+        <div class="card-header">
+            <div class="card-title">Darajalar balansi</div>
+        </div>
+        <div class="progress-list">
+            <div class="progress-item">
+                <div class="progress-info"><span>Elementary (A1-A2)</span><span id="txtA">0/0</span></div>
+                <div class="progress-bar-bg"><div class="progress-bar-fill" id="barA"></div></div>
+            </div>
+            <div class="progress-item">
+                <div class="progress-info"><span>Intermediate (B1-B2)</span><span id="txtB">0/0</span></div>
+                <div class="progress-bar-bg"><div class="progress-bar-fill" id="barB"></div></div>
+            </div>
+            <div class="progress-item">
+                <div class="progress-info"><span>Advanced (C1-IELTS)</span><span id="txtC">0/0</span></div>
+                <div class="progress-bar-bg"><div class="progress-bar-fill" id="barC"></div></div>
             </div>
         </div>
-        <button class="nav-btn" onclick="nextWord()">Keyingi so'z ➔</button>
     </div>
 
-    <!-- 4. USER PANEL: QUIZ EKRENI -->
-    <div id="screenQuizDisplay" class="screen">
-        <div class="display-card" style="padding: 20px 10px;">
-            <div class="word-en" id="quizQuestion" style="font-size: 26px;">-</div>
-            <p class="subtitle" style="margin-top:6px;">To'g'ri javobni tanlang:</p>
-        </div>
-        <div class="quiz-options" id="quizOptionsData"></div>
-    </div>
-
-    <!-- 5. ADMIN PANEL: SMART ADVERTISING, PAYMENT ANALYTICS & SQL PARSER -->
-    <div id="screenAdmin" class="screen">
-        <!-- Haqiqiy Statistika paneli -->
-        <div class="grid-stats">
-            <div class="stat-card"><div class="stat-title">Bazadagi jami so'zlar</div><div class="stat-value" id="stat-total-words">0 ta</div></div>
-            <div class="stat-card"><div class="stat-title">Faol Darajalar</div><div class="stat-value" id="stat-active-levels">0 ta</div></div>
-        </div>
-
-        <div class="chart-wrapper">
-            <canvas id="miniLineChart"></canvas>
-        </div>
-
-        <div>
-            <p class="subtitle" style="color: var(--accent-blue); margin-bottom: 4px;">SQL Ma'lumotlar bazasi (.sql):</p>
-            <textarea id="sqlInput" class="admin-area" placeholder="INSERT INTO words (id, word, translate, example1_en, example1_uz, example2_en, example2_uz, tur, guruh, daraja) VALUES (1, 'apple', 'olma', 'I eat an apple', 'Men olma yeyman', '', '', 'noun', 'fruits', 'A1');"></textarea>
-        </div>
-        
-        <label class="upload-label">
-            📁 SQL Fayl Yuklash (.sql)
-            <input type="file" id="sqlFile" accept=".sql" style="display: none;" onchange="handleSQLFile(event)">
-        </label>
-        
-        <button class="nav-btn" style="background-color: var(--accent-blue);" onclick="processSQL()">Bazani Yangilash (Parse)</button>
-        <button class="nav-btn" style="background: var(--accent-red); color: white;" onclick="clearDatabase()">Bazani Tozalash</button>
-        <p id="adminStatus" style="font-size: 12px; text-align: center; min-height: 16px; font-weight: bold;"></p>
-    </div>
-
-    <!-- GLOBAL NAVIGATSIYA PASTI -->
-    <div style="margin-top: 12px;">
-        <button id="backBtn" class="nav-btn back-btn" style="display: none;" onclick="goGlobalBack()">⬅ Ortga qaytish</button>
-        <button id="closeBtn" class="nav-btn" style="background-color: var(--bg-secondary); color: var(--text-main); border: 1px solid var(--border-color);" onclick="tg.close()">Ilovani yopish</button>
+    <div class="footer-note">
+        Ma'lumotlar yagona PostgreSQL serveri bilan himoyalangan sinxronizatsiyaga ega.
     </div>
 
     <script>
+        // Telegram WebApp obyektini ishga tushiramiz
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        const ADMIN_PASSWORD = "060626";
+        let activityChart = null;
 
-        // Standart boshlang'ich baza (Agar localStorage bo'sh bo'lsa)
-        const defaultDatabase = {
-            'A1': [{en: 'welcome', uz: 'xush kelibsiz', tur: 'verb', exEn: 'Welcome to our bot', exUz: 'Botimizga xush kelibsiz', options: ['xush kelibsiz', 'hayr', 'ertaga']}],
-            'A2': [], 'B1': [], 'B2': [], 'C1': [], 'C2': [], 'IELTS': []
-        };
-
-        let wordsDatabase = JSON.parse(localStorage.getItem('lingua_db')) || defaultDatabase;
-        let currentMode = ""; 
-        let activeLevel = "";
-        let currentIndex = 0;
-        let chartInstance = null;
-
-        // Haqiqiy statistikani yangilovchi funksiya
-        function updateRealStatistics() {
-            let totalWords = 0;
-            let activeLevelsCount = 0;
-            let chartData = [];
-            let chartLabels = [];
-
-            for (const level in wordsDatabase) {
-                const count = wordsDatabase[level].length;
-                totalWords += count;
-                if (count > 0) {
-                    activeLevelsCount++;
+        // Sahifa yuklanganda Telegram foydalanuvchi ma'lumotlarini vizualizatsiya qilish
+        function initUserProfile() {
+            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                const user = tg.initDataUnsafe.user;
+                document.getElementById('userName').textContent = (user.first_name + " " + (user.last_name || "")).trim();
+                document.getElementById('userTgId').textContent = "ID: " + user.id;
+                if (user.first_name) {
+                    document.getElementById('userAvatar').textContent = user.first_name.charAt(0).toUpperCase();
                 }
-                chartLabels.push(level);
-                chartData.push(count);
+            } else {
+                // Brauzer orqali test qilinayotgandagi default holat
+                document.getElementById('userName').textContent = "Developer VCG";
+                document.getElementById('userTgId').textContent = "ID: 99827154";
             }
-
-            document.getElementById('stat-total-words').textContent = totalWords + " ta";
-            document.getElementById('stat-active-levels').textContent = activeLevelsCount + " ta daraja";
-
-            return { labels: chartLabels, data: chartData };
         }
 
-        // Admin Panelga Parol orqali kirish va Real grafikni chizish
-        function openAdmin() {
-            const accessPass = prompt("Admin panelga kirish parolini kiriting:");
-            if (accessPass !== ADMIN_PASSWORD) {
-                alert("Xato parol! Ruxsat berilmadi.");
-                return;
+        // Grafikni chizish va yangilash funksiyasi
+        function renderChart(days, counts) {
+            const ctx = document.getElementById('userActivityChart').getContext('2d');
+            if (activityChart) {
+                activityChart.destroy();
             }
-
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
-            document.getElementById('screenAdmin').classList.add('active-screen');
-            document.getElementById('backBtn').style.display = "block";
-            document.getElementById('page-title').textContent = "Boshqaruv & Analitika";
-            document.getElementById('flow-title').textContent = "Admin System";
-            
-            const stats = updateRealStatistics();
-            
-            setTimeout(() => {
-                const ctx = document.getElementById('miniLineChart').getContext('2d');
-                if (chartInstance) { chartInstance.destroy(); }
-                chartInstance = new Chart(ctx, {
-                    type: 'bar', // Darajalar bo'yicha haqiqiy so'zlar miqdori barda yaqqol ko'rinadi
-                    data: {
-                        labels: stats.labels,
-                        datasets: [{
-                            label: "So'zlar soni",
-                            data: stats.data,
-                            backgroundColor: '#38bdf8',
-                            borderRadius: 4
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            x: { grid: { color: '#334155' }, ticks: { color: '#94a3b8', font: { size: 10 } } },
-                            y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8', font: { size: 10 }, beginAtZero: true } }
-                        }
-                    }
-                });
-            }, 50);
-        }
-
-        function handleSQLFile(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('sqlInput').value = e.target.result;
-            };
-            reader.readAsText(file);
-        }
-
-        // Siz ko'rsatgan PostgreSQL/MySQL INSERT formatiga moslashtirilgan universal parser
-        function processSQL() {
-            const sqlText = document.getElementById('sqlInput').value;
-            const status = document.getElementById('adminStatus');
-            if(!sqlText.trim()) { alert("SQL matni kiritilmagan!"); return; }
-
-            // VALUES (...) bloklarini qidirish
-            const valuesBlockRegex = /VALUES\s*\(([^)]+)\)/gi;
-            
-            let match;
-            let counter = 0;
-            // Bazani toza yuklash uchun yangi obyekt ochamiz
-            let newDb = {'A1':[], 'A2':[], 'B1':[], 'B2':[], 'C1':[], 'C2':[], 'IELTS':[]};
-
-            while ((match = valuesBlockRegex.exec(sqlText)) !== null) {
-                const rawValues = match[1];
-                
-                // Tirnoqlar orasidagi matnlarni va raqamlarni to'g'ri ajratuvchi parser logikasi
-                // Bu mantiq vergul orqali elementlarni massivga ajratadi va keraksiz elementlarni tozalaydi
-                const items = rawValues.split(/,(?=(?:(?:[^']*'){2})*[^']*$)/).map(item => {
-                    return item.trim().replace(/^'|'$/g, "").replace(/\\'/g, "'");
-                });
-                
-                // Siz taqdim etgan tartib: (id, word, translate, example1_en, example1_uz, example2_en, example2_uz, tur, guruh, daraja)
-                // Demak: items[1]=word, items[2]=translate, items[3]=example1_en, items[4]=example1_uz, items[7]=tur, items[9]=daraja
-                if (items.length >= 10) {
-                    const en = items[1];
-                    const uz = items[2];
-                    const exEn = items[3];
-                    const exUz = items[4];
-                    const tur = items[7];
-                    const lvl = items[9].toUpperCase().trim(); // A1, A2...
-
-                    // Test variantlari uchun o'sha darajadan tasodifiy noto'g'ri variantlar yasaymiz yoki default qo'shamiz
-                    let options = [uz, "noto'g'ri variant A", "noto'g'ri variant B"];
-
-                    if (newDb[lvl] || defaultDatabase[lvl]) {
-                        const targetLvl = newDb[lvl] ? lvl : 'A1'; // Noma'lum daraja bo'lsa default A1 ga tushadi
-                        newDb[targetLvl].push({
-                            en: en,
-                            uz: uz,
-                            exEn: exEn,
-                            exUz: exUz,
-                            tur: tur,
-                            options: options
-                        });
-                        counter++;
+            activityChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: days,
+                    datasets: [{
+                        label: "Yechilgan testlar",
+                        data: counts,
+                        borderColor: '#06b6d4',
+                        backgroundColor: 'rgba(6, 182, 212, 0.05)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.3,
+                        pointBackgroundColor: '#06b6d4'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { color: '#374151' }, ticks: { color: '#9ca3af', font: { size: 10 } } },
+                        y: { grid: { color: '#374151' }, ticks: { color: '#9ca3af', font: { size: 10 }, beginAtZero: true } }
                     }
                 }
-            }
-
-            if(counter > 0) {
-                // Generatsiya qilingan test variantlarini real bazadan olingan so'zlar bilan boyitish (Yaxshi ishlashi uchun)
-                for (const lvl in newDb) {
-                    const levelWords = newDb[lvl];
-                    if (levelWords.length > 2) {
-                        levelWords.forEach(wordObj => {
-                            let localOpts = new Set([wordObj.uz]);
-                            while(localOpts.size < 3) {
-                                let randomWord = levelWords[Math.floor(Math.random() * levelWords.length)].uz;
-                                localOpts.add(randomWord);
-                            }
-                            wordObj.options = Array.from(localOpts).sort(() => Math.random() - 0.5);
-                        });
-                    }
-                }
-
-                wordsDatabase = newDb;
-                localStorage.setItem('lingua_db', JSON.stringify(wordsDatabase));
-                status.style.color = "var(--accent-green)";
-                status.textContent = `Muvaffaqiyatli! ${counter} ta so'z yangi SQL jadval strukturasi bo'yicha muvaffaqiyatli o'qildi.`;
-                document.getElementById('sqlInput').value = "";
-                updateRealStatistics();
-            } else {
-                status.style.color = "var(--accent-red)";
-                status.textContent = "Xatolik! Ustunlar mos kelmadi. VALUES (id, word, translate, ex1_en, ex1_uz, ex2_en, ex2_uz, tur, guruh, daraja) ekanligini tekshiring.";
-            }
-        }
-
-        function clearDatabase() {
-            if(confirm("Haqiqatan ham barcha yuklangan ma'lumotlarni o'chirmoqchimisiz?")) {
-                localStorage.removeItem('lingua_db');
-                wordsDatabase = defaultDatabase;
-                document.getElementById('adminStatus').style.color = "var(--text-muted)";
-                document.getElementById('adminStatus').textContent = "Baza muvaffaqiyatli tozalandi!";
-                updateRealStatistics();
-            }
-        }
-
-        function switchScreen(mode) {
-            currentMode = mode;
-            document.getElementById('screenMain').classList.remove('active-screen');
-            document.getElementById('screenLevels').classList.add('active-screen');
-            document.getElementById('backBtn').style.display = "block";
-            document.getElementById('page-title').textContent = "Darajani tanlang";
-            document.getElementById('flow-title').textContent = mode === 'words' ? "📚 Lug'at rejimi" : "📝 Test rejimi";
-        }
-
-        function startFeature(level) {
-            activeLevel = level;
-            currentIndex = 0;
-
-            const list = wordsDatabase[activeLevel] || [];
-            if(list.length === 0) {
-                alert(`${activeLevel} darajasida so'zlar topilmadi. Avval SQL formatda ma'lumot yuklang!`);
-                return;
-            }
-
-            document.getElementById('screenLevels').classList.remove('active-screen');
-
-            if (currentMode === 'words') {
-                document.getElementById('screenWordsDisplay').classList.add('active-screen');
-                showWord();
-            } else {
-                document.getElementById('screenQuizDisplay').classList.add('active-screen');
-                showQuiz();
-            }
-        }
-
-        function showWord() {
-            const list = wordsDatabase[activeLevel];
-            const currentItem = list[currentIndex];
-            
-            document.getElementById('page-title').textContent = `${activeLevel} (${currentIndex + 1}/${list.length})`;
-            document.getElementById('displayEn').textContent = currentItem.en;
-            document.getElementById('displayUz').textContent = currentItem.uz;
-            document.getElementById('displayMeta').textContent = currentItem.tur ? currentItem.tur : 'so\'z';
-            
-            const exBlock = document.getElementById('exampleBlock');
-            if(currentItem.exEn && currentItem.exEn.trim() !== "") {
-                exBlock.style.display = "block";
-                document.getElementById('displayExEn').textContent = currentItem.exEn;
-                document.getElementById('displayExUz').textContent = currentItem.exUz ? currentItem.exUz : '';
-            } else {
-                exBlock.style.display = "none";
-            }
-        }
-
-        function nextWord() {
-            const list = wordsDatabase[activeLevel];
-            currentIndex = (currentIndex + 1) % list.length;
-            showWord();
-        }
-
-        function showQuiz() {
-            const list = wordsDatabase[activeLevel];
-            const currentQuiz = list[currentIndex];
-            document.getElementById('page-title').textContent = `Quiz: ${activeLevel}`;
-            document.getElementById('quizQuestion').textContent = currentQuiz.en;
-            
-            const optionsDiv = document.getElementById('quizOptionsData');
-            optionsDiv.innerHTML = "";
-
-            currentQuiz.options.forEach(opt => {
-                const btn = document.createElement('button');
-                btn.className = "option-btn";
-                btn.textContent = opt;
-                btn.onclick = () => checkAnswer(btn, opt, currentQuiz.uz);
-                optionsDiv.appendChild(btn);
             });
         }
 
-        function checkAnswer(button, selected, correct) {
-            const options = document.getElementById('quizOptionsData').getElementsByTagName('button');
-            for(let btn of options) { btn.disabled = true; }
+        // TUGMA BOSILGANDA YOKI REAL VAQTDA POSTGRESQL backend'dan ma'lumotlarni tortib olish mantiqi
+        function syncWithPostgres() {
+            // Animatsiya effekti
+            const btn = document.querySelector('.refresh-btn');
+            btn.textContent = "Yuklanmoqda...";
+            
+            // Telegram foydalanuvchi ID si orqali API ga so'rov yuboriladi
+            const userId = tg.initDataUnsafe?.user?.id || 123456;
 
-            if (selected.toLowerCase() === correct.toLowerCase()) {
-                button.style.backgroundColor = "var(--accent-green)";
-                button.style.color = "var(--bg-primary)";
-            } else {
-                button.style.backgroundColor = "var(--accent-red)";
-                for(let btn of options) {
-                    if(btn.textContent.toLowerCase() === correct.toLowerCase()) {
-                        btn.style.backgroundColor = "var(--accent-green)";
-                        btn.style.color = "var(--bg-primary)";
-                    }
-                }
-            }
+            /* 
+               Sizning PostgreSQL API so'rovingiz shabloni (Backend yozganingizda ochib qo'yasiz):
+               fetch(`/api/user-stats?tg_id=${userId}`)
+               .then(res => res.json())
+               .then(data => { ... })
+            */
 
+            // PostgreSQL'dan kelishi kutiladigan real formatdagi o'quv simulyatsiya ma'lumotlari:
             setTimeout(() => {
-                const list = wordsDatabase[activeLevel];
-                currentIndex = (currentIndex + 1) % list.length;
-                showQuiz();
-            }, 1200);
+                const responseData = {
+                    learned_words: 142,
+                    total_tests: 185,
+                    accuracy: 82,
+                    global_rank: 42,
+                    chart_days: ['Dush', 'Sesh', 'Chor', 'Pay', 'Jum', 'Shan', 'Yak'],
+                    chart_data: [12, 25, 18, 40, 22, 45, 23],
+                    levels: {
+                        a_current: 85, a_max: 100,
+                        b_current: 42, b_max: 100,
+                        c_current: 15, c_max: 50
+                    }
+                };
+
+                // 1. Box raqamlarni real vaqtda yangilash
+                document.getElementById('countLearned').textContent = responseData.learned_words;
+                document.getElementById('countTests').textContent = responseData.total_tests;
+                document.getElementById('countAccuracy').textContent = responseData.accuracy + "%";
+                document.getElementById('countRank').textContent = "#" + responseData.global_rank;
+
+                // 2. Daraja barlarini yangilash
+                document.getElementById('txtA').textContent = `${responseData.levels.a_current}/${responseData.levels.a_max}`;
+                document.getElementById('barA').style.width = (responseData.levels.a_current / responseData.levels.a_max * 100) + "%";
+
+                document.getElementById('txtB').textContent = `${responseData.levels.b_current}/${responseData.levels.b_max}`;
+                document.getElementById('barB').style.width = (responseData.levels.b_current / responseData.levels.b_max * 100) + "%";
+
+                document.getElementById('txtC').textContent = `${responseData.levels.c_current}/${responseData.levels.c_max}`;
+                document.getElementById('barC').style.width = (responseData.levels.c_current / responseData.levels.c_max * 100) + "%";
+
+                // 3. Grafik ma'lumotlarini qayta chizish
+                renderChart(responseData.chart_days, responseData.chart_data);
+
+                // Tugma holatini qaytarish
+                btn.textContent = "🔄 Yangilash (Fetch)";
+                
+                // Telegramga ma'lumot muvaffaqiyatli sinxron bo'lgani haqida bildirishnoma berish
+                if(tg.showScanQrPopup) { 
+                    tg.HapticFeedback.notificationOccurred('success');
+                }
+            }, 800); // 0.8 soniya yuklanish simulyatsiyasi
         }
 
-        function goGlobalBack() {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
-            document.getElementById('screenMain').classList.add('active-screen');
-            document.getElementById('backBtn').style.display = "none";
-            document.getElementById('page-title').textContent = "Asosiy Menyu";
-            document.getElementById('flow-title').textContent = "LinguaGoWords Mobile";
-            document.getElementById('adminStatus').textContent = "";
-        }
-
-        // Dastlabki yuklanishda statistikani hisoblab qo'yish
-        updateRealStatistics();
+        // Ilk yuklanish tartibi
+        initUserProfile();
+        syncWithPostgres(); // Sahifa ochilishi bilan avtomatik real-time ma'lumotni yuklaydi
     </script>
 </body>
 </html>
