@@ -122,7 +122,7 @@
         .display-card {
             background: var(--bg-secondary);
             border: 1px solid var(--border-color);
-            padding: 35px 20px;
+            padding: 25px 20px;
             border-radius: 16px;
             text-align: center;
         }
@@ -134,10 +134,34 @@
         }
 
         .word-uz {
-            font-size: 22px;
-            margin-top: 12px;
+            font-size: 20px;
+            margin-top: 10px;
             color: var(--text-main);
             opacity: 0.9;
+        }
+
+        .word-meta {
+            font-size: 12px;
+            color: var(--accent-green);
+            background: rgba(52, 211, 153, 0.1);
+            padding: 4px 8px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-top: 8px;
+        }
+
+        .word-example {
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px dashed var(--border-color);
+            text-align: left;
+            font-size: 14px;
+        }
+
+        .example-title {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
         }
 
         .quiz-options {
@@ -159,7 +183,7 @@
             transition: background 0.2s;
         }
 
-        /* Admin Dashboard & Stats */
+        /* Admin Dashboard */
         .grid-stats {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -190,7 +214,7 @@
             border: 1px solid var(--border-color);
             padding: 12px;
             border-radius: 12px;
-            height: 180px;
+            height: 160px;
             position: relative;
         }
 
@@ -207,7 +231,6 @@
             resize: none;
         }
 
-        /* Navigatsiya tugmalari */
         .nav-btn {
             background-color: var(--accent-blue);
             color: var(--bg-primary);
@@ -252,7 +275,7 @@
     <!-- 1. USER PANEL: ASOSIY MENYU -->
     <div id="screenMain" class="screen active-screen">
         <div class="main-btn" onclick="switchScreen('words')">
-            <span>📚 Words (So'zlar ruyhati)</span> <span>➔</span>
+            <span>📚 Words (So'zlar ro'yxati)</span> <span>➔</span>
         </div>
         <div class="main-btn" onclick="switchScreen('quiz')">
             <span>📝 Test (O'zini sinash)</span> <span>➔</span>
@@ -276,7 +299,14 @@
     <div id="screenWordsDisplay" class="screen">
         <div class="display-card">
             <div class="word-en" id="displayEn">-</div>
+            <div id="displayMeta" class="word-meta">-</div>
             <div class="word-uz" id="displayUz">-</div>
+            
+            <div class="word-example" id="exampleBlock" style="display:none;">
+                <div class="example-title">Kontekst (Misol):</div>
+                <div id="displayExEn" style="color: var(--accent-blue); font-style: italic; margin-top:4px;"></div>
+                <div id="displayExUz" style="color: var(--text-muted); margin-top: 2px;"></div>
+            </div>
         </div>
         <button class="nav-btn" onclick="nextWord()">Keyingi so'z ➔</button>
     </div>
@@ -292,9 +322,10 @@
 
     <!-- 5. ADMIN PANEL: SMART ADVERTISING, PAYMENT ANALYTICS & SQL PARSER -->
     <div id="screenAdmin" class="screen">
+        <!-- Haqiqiy Statistika paneli -->
         <div class="grid-stats">
-            <div class="stat-card"><div class="stat-title">Foydalanuvchilar</div><div class="stat-value">12,480 ta</div></div>
-            <div class="stat-card"><div class="stat-title">Konversiya (Ad)</div><div class="stat-value">4.8%</div></div>
+            <div class="stat-card"><div class="stat-title">Bazadagi jami so'zlar</div><div class="stat-value" id="stat-total-words">0 ta</div></div>
+            <div class="stat-card"><div class="stat-title">Faol Darajalar</div><div class="stat-value" id="stat-active-levels">0 ta</div></div>
         </div>
 
         <div class="chart-wrapper">
@@ -303,7 +334,7 @@
 
         <div>
             <p class="subtitle" style="color: var(--accent-blue); margin-bottom: 4px;">SQL Ma'lumotlar bazasi (.sql):</p>
-            <textarea id="sqlInput" class="admin-area" placeholder="INSERT INTO words VALUES ('A1', 'apple', 'olma', 'olxo\'ri', 'anor', 'behi', 'tarvuz');"></textarea>
+            <textarea id="sqlInput" class="admin-area" placeholder="INSERT INTO words (id, word, translate, example1_en, example1_uz, example2_en, example2_uz, tur, guruh, daraja) VALUES (1, 'apple', 'olma', 'I eat an apple', 'Men olma yeyman', '', '', 'noun', 'fruits', 'A1');"></textarea>
         </div>
         
         <label class="upload-label">
@@ -326,11 +357,11 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Admin kirish paroli (Buni xohlaganingizga o'zgartirishingiz mumkin)
-        const ADMIN_PASSWORD = "060626";
+        const ADMIN_PASSWORD = "vcore_admin_777";
 
+        // Standart boshlang'ich baza (Agar localStorage bo'sh bo'lsa)
         const defaultDatabase = {
-            'A1': [{en: 'welcome', uz: 'xush kelibsiz', options: ['xush kelibsiz', 'hayr', 'ertaga']}],
+            'A1': [{en: 'welcome', uz: 'xush kelibsiz', tur: 'verb', exEn: 'Welcome to our bot', exUz: 'Botimizga xush kelibsiz', options: ['xush kelibsiz', 'hayr', 'ertaga']}],
             'A2': [], 'B1': [], 'B2': [], 'C1': [], 'C2': [], 'IELTS': []
         };
 
@@ -340,10 +371,33 @@
         let currentIndex = 0;
         let chartInstance = null;
 
-        // Admin Panelga Parol orqali kirish
+        // Haqiqiy statistikani yangilovchi funksiya
+        function updateRealStatistics() {
+            let totalWords = 0;
+            let activeLevelsCount = 0;
+            let chartData = [];
+            let chartLabels = [];
+
+            for (const level in wordsDatabase) {
+                const count = wordsDatabase[level].length;
+                totalWords += count;
+                if (count > 0) {
+                    activeLevelsCount++;
+                }
+                chartLabels.push(level);
+                chartData.push(count);
+            }
+
+            document.getElementById('stat-total-words').textContent = totalWords + " ta";
+            document.getElementById('stat-active-levels').textContent = activeLevelsCount + " ta daraja";
+
+            return { labels: chartLabels, data: chartData };
+        }
+
+        // Admin Panelga Parol orqali kirish va Real grafikni chizish
         function openAdmin() {
             const accessPass = prompt("Admin panelga kirish parolini kiriting:");
-            if (accessPass !== ADMIN_PASSWORD) {
+            if (accessPass !== 060626) {
                 alert("Xato parol! Ruxsat berilmadi.");
                 return;
             }
@@ -354,20 +408,20 @@
             document.getElementById('page-title').textContent = "Boshqaruv & Analitika";
             document.getElementById('flow-title').textContent = "Admin System";
             
+            const stats = updateRealStatistics();
+            
             setTimeout(() => {
                 const ctx = document.getElementById('miniLineChart').getContext('2d');
                 if (chartInstance) { chartInstance.destroy(); }
                 chartInstance = new Chart(ctx, {
-                    type: 'line',
+                    type: 'bar', // Darajalar bo'yicha haqiqiy so'zlar miqdori barda yaqqol ko'rinadi
                     data: {
-                        labels: ['Mar', 'Apr', 'May', 'Jun'],
+                        labels: stats.labels,
                         datasets: [{
-                            label: 'Tushum ($)',
-                            data: [1700, 2400, 2800, 3240],
-                            borderColor: '#38bdf8',
-                            backgroundColor: 'rgba(56, 189, 248, 0.1)',
-                            fill: true,
-                            tension: 0.2
+                            label: "So'zlar soni",
+                            data: stats.data,
+                            backgroundColor: '#38bdf8',
+                            borderRadius: 4
                         }]
                     },
                     options: {
@@ -376,7 +430,7 @@
                         plugins: { legend: { display: false } },
                         scales: {
                             x: { grid: { color: '#334155' }, ticks: { color: '#94a3b8', font: { size: 10 } } },
-                            y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8', font: { size: 10 } } }
+                            y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8', font: { size: 10 }, beginAtZero: true } }
                         }
                     }
                 });
@@ -393,53 +447,82 @@
             reader.readAsText(file);
         }
 
-        // To'g'rilangan universal dynamic SQL Parser
+        // Siz ko'rsatgan PostgreSQL/MySQL INSERT formatiga moslashtirilgan universal parser
         function processSQL() {
             const sqlText = document.getElementById('sqlInput').value;
             const status = document.getElementById('adminStatus');
             if(!sqlText.trim()) { alert("SQL matni kiritilmagan!"); return; }
 
-            // Har qanday miqdordagi string elementlarni tirnoqlar ichidan ajratib oluvchi dynamic regex
+            // VALUES (...) bloklarini qidirish
             const valuesBlockRegex = /VALUES\s*\(([^)]+)\)/gi;
             
             let match;
             let counter = 0;
+            // Bazani toza yuklash uchun yangi obyekt ochamiz
             let newDb = {'A1':[], 'A2':[], 'B1':[], 'B2':[], 'C1':[], 'C2':[], 'IELTS':[]};
 
             while ((match = valuesBlockRegex.exec(sqlText)) !== null) {
                 const rawValues = match[1];
-                // Vergul va tirnoqlar orqali massivga o'giramiz, har bir so'z atrofidagi tirnoqlarni tozalaymiz
-                const items = rawValues.split(',').map(item => item.trim().replace(/^'|'$/g, "").replace(/\\'/g, "'"));
                 
-                if (items.length >= 3) {
-                    const lvl = items[0].toUpperCase(); // A1, A2, IELTS...
+                // Tirnoqlar orasidagi matnlarni va raqamlarni to'g'ri ajratuvchi parser logikasi
+                // Bu mantiq vergul orqali elementlarni massivga ajratadi va keraksiz elementlarni tozalaydi
+                const items = rawValues.split(/,(?=(?:(?:[^']*'){2})*[^']*$)/).map(item => {
+                    return item.trim().replace(/^'|'$/g, "").replace(/\\'/g, "'");
+                });
+                
+                // Siz taqdim etgan tartib: (id, word, translate, example1_en, example1_uz, example2_en, example2_uz, tur, guruh, daraja)
+                // Demak: items[1]=word, items[2]=translate, items[3]=example1_en, items[4]=example1_uz, items[7]=tur, items[9]=daraja
+                if (items.length >= 10) {
                     const en = items[1];
                     const uz = items[2];
-                    
-                    // Qolgan barcha elementlar variantlar (options) hisoblanadi (3, 4 yoki undan ko'p bo'lishi mumkin)
-                    let options = items.slice(3);
-                    
-                    // Agar SQL ichida variantlar kam kiritilgan bo'lsa, avtomatik to'g'ri javobni ham qo'shamiz
-                    if (options.length === 0 || !options.includes(uz)) {
-                        options.unshift(uz);
-                    }
+                    const exEn = items[3];
+                    const exUz = items[4];
+                    const tur = items[7];
+                    const lvl = items[9].toUpperCase().trim(); // A1, A2...
 
-                    if (newDb[lvl]) {
-                        newDb[lvl].push({ en: en, uz: uz, options: options });
+                    // Test variantlari uchun o'sha darajadan tasodifiy noto'g'ri variantlar yasaymiz yoki default qo'shamiz
+                    let options = [uz, "noto'g'ri variant A", "noto'g'ri variant B"];
+
+                    if (newDb[lvl] || defaultDatabase[lvl]) {
+                        const targetLvl = newDb[lvl] ? lvl : 'A1'; // Noma'lum daraja bo'lsa default A1 ga tushadi
+                        newDb[targetLvl].push({
+                            en: en,
+                            uz: uz,
+                            exEn: exEn,
+                            exUz: exUz,
+                            tur: tur,
+                            options: options
+                        });
                         counter++;
                     }
                 }
             }
 
             if(counter > 0) {
+                // Generatsiya qilingan test variantlarini real bazadan olingan so'zlar bilan boyitish (Yaxshi ishlashi uchun)
+                for (const lvl in newDb) {
+                    const levelWords = newDb[lvl];
+                    if (levelWords.length > 2) {
+                        levelWords.forEach(wordObj => {
+                            let localOpts = new Set([wordObj.uz]);
+                            while(localOpts.size < 3) {
+                                let randomWord = levelWords[Math.floor(Math.random() * levelWords.length)].uz;
+                                localOpts.add(randomWord);
+                            }
+                            wordObj.options = Array.from(localOpts).sort(() => Math.random() - 0.5);
+                        });
+                    }
+                }
+
                 wordsDatabase = newDb;
                 localStorage.setItem('lingua_db', JSON.stringify(wordsDatabase));
                 status.style.color = "var(--accent-green)";
-                status.textContent = `Muvaffaqiyatli! ${counter} ta so'z muammosiz yuklandi.`;
+                status.textContent = `Muvaffaqiyatli! ${counter} ta so'z yangi SQL jadval strukturasi bo'yicha muvaffaqiyatli o'qildi.`;
                 document.getElementById('sqlInput').value = "";
+                updateRealStatistics();
             } else {
                 status.style.color = "var(--accent-red)";
-                status.textContent = "Xatolik! SQL sintaksisi mos kelmadi. VALUES ('A1', 'word', 'tarjima', 'opt1'...) ko'rinishida yozing.";
+                status.textContent = "Xatolik! Ustunlar mos kelmadi. VALUES (id, word, translate, ex1_en, ex1_uz, ex2_en, ex2_uz, tur, guruh, daraja) ekanligini tekshiring.";
             }
         }
 
@@ -449,6 +532,7 @@
                 wordsDatabase = defaultDatabase;
                 document.getElementById('adminStatus').style.color = "var(--text-muted)";
                 document.getElementById('adminStatus').textContent = "Baza muvaffaqiyatli tozalandi!";
+                updateRealStatistics();
             }
         }
 
@@ -484,9 +568,21 @@
 
         function showWord() {
             const list = wordsDatabase[activeLevel];
+            const currentItem = list[currentIndex];
+            
             document.getElementById('page-title').textContent = `${activeLevel} (${currentIndex + 1}/${list.length})`;
-            document.getElementById('displayEn').textContent = list[currentIndex].en;
-            document.getElementById('displayUz').textContent = list[currentIndex].uz;
+            document.getElementById('displayEn').textContent = currentItem.en;
+            document.getElementById('displayUz').textContent = currentItem.uz;
+            document.getElementById('displayMeta').textContent = currentItem.tur ? currentItem.tur : 'so\'z';
+            
+            const exBlock = document.getElementById('exampleBlock');
+            if(currentItem.exEn && currentItem.exEn.trim() !== "") {
+                exBlock.style.display = "block";
+                document.getElementById('displayExEn').textContent = currentItem.exEn;
+                document.getElementById('displayExUz').textContent = currentItem.exUz ? currentItem.exUz : '';
+            } else {
+                exBlock.style.display = "none";
+            }
         }
 
         function nextWord() {
@@ -545,6 +641,9 @@
             document.getElementById('flow-title').textContent = "LinguaGoWords Mobile";
             document.getElementById('adminStatus').textContent = "";
         }
+
+        // Dastlabki yuklanishda statistikani hisoblab qo'yish
+        updateRealStatistics();
     </script>
 </body>
 </html>
