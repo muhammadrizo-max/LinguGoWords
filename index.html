@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LinguaGoWords Dashboard</title>
+    <!-- Telegram Web App Script -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --tg-theme-bg-color: #17212b;
+            --tg-theme-text-color: #f5f5f5;
+            --tg-theme-button-color: #2f6ea5;
+            --tg-theme-button-text-color: #ffffff;
+            --tg-theme-hint-color: #708499;
+            --card-bg: rgba(255, 255, 255, 0.05);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--tg-theme-bg-color);
+            color: var(--tg-theme-text-color);
+            margin: 0;
+            padding: 16px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 95vh;
+            user-select: none;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .welcome-text {
+            font-size: 20px;
+            font-weight: 700;
+            margin: 5px 0;
+        }
+
+        .subtitle {
+            font-size: 13px;
+            color: var(--tg-theme-hint-color);
+            margin: 0;
+        }
+
+        /* Stat kartochkalari paneli */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: var(--card-bg);
+            padding: 12px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .stat-val {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--tg-theme-button-color);
+        }
+
+        .stat-lbl {
+            font-size: 11px;
+            color: var(--tg-theme-hint-color);
+            margin-top: 4px;
+        }
+
+        /* Bot funksiyalari uchun menyu tugmalari */
+        .menu-section {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .menu-item {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 14px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: transform 0.1s ease, background 0.2s ease;
+        }
+
+        .menu-item:active {
+            transform: scale(0.98);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .menu-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .menu-icon {
+            font-size: 22px;
+        }
+
+        .menu-title {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .arrow {
+            color: var(--tg-theme-hint-color);
+            font-size: 14px;
+        }
+
+        /* Asosiy Yopish tugmasi */
+        .close-btn {
+            background-color: var(--tg-theme-button-color);
+            color: var(--tg-theme-button-text-color);
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div>
+        <!-- Yuqori qism -->
+        <div class="header">
+            <p class="subtitle">LinguaGoWords Portfolio</p>
+            <div class="welcome-text" id="username">Foydalanuvchi</div>
+        </div>
+
+        <!-- Botdan kelgan dinamik statistika (Xohlasangiz link orqali uzatasiz) -->
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div class="stat-val" id="user-words">0</div>
+                <div class="stat-lbl">Yodlangan so'zlar</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-val" id="user-level">A1</div>
+                <div class="stat-lbl">Sizning darajangiz</div>
+            </div>
+        </div>
+
+        <!-- Botning ichki funksiyalariga eltuvchi tugmalar -->
+        <div class="menu-section">
+            <div class="menu-item" onclick="sendToBot('🚀 Kurslarni boshlash')">
+                <div class="menu-info">
+                    <span class="menu-icon">📚</span>
+                    <span class="menu-title">Darslarni Boshlash</span>
+                </div>
+                <span class="arrow">➔</span>
+            </div>
+
+            <div class="menu-item" onclick="sendToBot('📝 Kundalik Test')">
+                <div class="menu-info">
+                    <span class="menu-icon">✍️</span>
+                    <span class="menu-title">O'zini sinash (Quiz)</span>
+                </div>
+                <span class="arrow">➔</span>
+            </div>
+
+            <div class="menu-item" onclick="sendToBot('📊 Mening Statistikam')">
+                <div class="menu-info">
+                    <span class="menu-icon">📈</span>
+                    <span class="menu-title">Reyting va Statistika</span>
+                </div>
+                <span class="arrow">➔</span>
+            </div>
+
+            <div class="menu-item" onclick="sendToBot('⚙️ Sozlamalar')">
+                <div class="menu-info">
+                    <span class="menu-icon">⚙️</span>
+                    <span class="menu-title">Tilni o'zgartirish</span>
+                </div>
+                <span class="arrow">➔</span>
+            </div>
+        </div>
+    </div>
+
+    <button class="close-btn" onclick="tg.close()">Orqaga qaytish</button>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        // Telegram ranglariga moslashish
+        if (tg.backgroundColor) {
+            document.documentElement.style.setProperty('--tg-theme-bg-color', tg.backgroundColor);
+            document.documentElement.style.setProperty('--tg-theme-text-color', tg.textColor);
+            document.documentElement.style.setProperty('--tg-theme-button-color', tg.buttonColor);
+            document.documentElement.style.setProperty('--tg-theme-button-text-color', tg.buttonTextColor);
+            document.documentElement.style.setProperty('--tg-theme-hint-color', tg.hintColor);
+        }
+
+        // Foydalanuvchi ismini chiqarish
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            document.getElementById('username').textContent = "Salom, " + tg.initDataUnsafe.user.first_name + "!";
+        }
+
+        // --- ORTIQCHA KODLARSIZ BOTGA ULASH LOGIKASI ---
+        
+        // URL manzildan parametrlarni o'qib olish funksiyasi (Masalan: so'zlar soni yoki darajani ko'rsatish uchun)
+        const urlParams = new URLSearchParams(window.location.search);
+        const words = urlParams.get('words') || '0'; 
+        const level = urlParams.get('level') || 'A1';
+        
+        document.getElementById('user-words').textContent = words;
+        document.getElementById('user-level').textContent = level;
+
+        // Tugma bosilganda botga xabar yuborish funksiyasi
+        function sendToBot(commandText) {
+            // Tizim botga ushbu matnni yuboradi
+            tg.sendData(commandText);
+            // Va oynani avtomatik yopadi
+            tg.close();
+        }
+    </script>
+</body>
+</html>
