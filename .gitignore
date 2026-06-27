@@ -1,0 +1,15 @@
+# IDE va tahrirlovchilar fayllari
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# Tizim fayllari
+.DS_Store
+Thumbs.db
+
+# Kelajakda node ishlatilsa keraksiz jild
+node_modules/
