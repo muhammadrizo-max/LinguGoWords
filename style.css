@@ -1,0 +1,349 @@
+:root {
+    --bg-main: #0b1426;
+    --bg-card: #16223f;
+    --bg-nav: #111b33;
+    --text-primary: #ffffff;
+    --text-muted: #7e8b9b;
+    --accent-blue: #00a2ff;
+    --accent-orange: #ff9100;
+    --accent-green: #00e676;
+    --border-color: #1f315c;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* HEADER */
+.app-header {
+    background-color: var(--bg-nav);
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.brand-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--accent-blue);
+}
+
+.version-badge {
+    background-color: #0d47a1;
+    color: #4fc3f7;
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    border-radius: 12px;
+    cursor: pointer;
+    user-select: none;
+    font-weight: bold;
+}
+
+/* USER INFO BAR */
+.user-info-bar {
+    background-color: var(--bg-card);
+    margin: 15px;
+    padding: 12px 15px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border: 1px solid var(--border-color);
+}
+
+.avatar-fallback {
+    width: 45px;
+    height: 45px;
+    background-color: var(--accent-blue);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.user-details h3 {
+    font-size: 0.95rem;
+    margin-bottom: 2px;
+}
+
+.user-details p {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* MAIN CONTENT */
+.main-content {
+    flex: 1;
+    padding: 0 15px 90px 15px;
+}
+
+.content-section {
+    display: none;
+}
+
+.content-section.active {
+    display: block;
+}
+
+.section-title {
+    font-size: 1.1rem;
+    color: var(--accent-blue);
+    margin-bottom: 15px;
+}
+
+.admin-title {
+    color: var(--accent-orange);
+}
+
+/* LEVELS GRID */
+.levels-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.level-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    padding: 18px;
+    border-radius: 12px;
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-weight: bold;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.level-card.active-level {
+    background-color: #1a2a4e;
+    border-color: var(--accent-blue);
+}
+
+.level-card.locked {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.lock-icon {
+    font-size: 0.9rem;
+}
+
+/* STATS ELEMENTS */
+.streak-banner {
+    background-color: rgba(255, 145, 0, 0.08);
+    border: 1px solid var(--accent-orange);
+    padding: 15px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.streak-text h4 {
+    color: var(--accent-orange);
+    font-size: 1rem;
+}
+
+.streak-text p {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.stat-box, .admin-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    padding: 15px;
+    border-radius: 12px;
+}
+
+.stat-label, .admin-label {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    margin-bottom: 5px;
+}
+
+.stat-value {
+    font-size: 1.4rem;
+    font-weight: bold;
+}
+
+/* ADMIN DASHBOARD SPECIFIC */
+.admin-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.admin-card {
+    border-color: rgba(255, 145, 0, 0.3);
+}
+
+.admin-value {
+    font-size: 1.4rem;
+    color: var(--accent-green);
+    font-weight: bold;
+}
+
+/* CHARTS PLACEHOLDER BUILD */
+.chart-wrapper {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.chart-title {
+    font-size: 0.85rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.mock-chart-line {
+    height: 120px;
+    position: relative;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 20px;
+}
+
+.chart-axis-y {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+}
+
+.chart-line-path {
+    position: absolute;
+    left: 30px;
+    right: 0;
+    top: 60px;
+    height: 2px;
+    background-color: var(--accent-blue);
+}
+
+.chart-days {
+    display: flex;
+    justify-content: space-between;
+    padding-left: 30px;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    margin-top: 5px;
+}
+
+.mock-pie-container {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    height: 60px;
+}
+
+.pie-labels {
+    display: flex;
+    gap: 15px;
+    font-size: 0.8rem;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.color-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+}
+
+.color-dot.correct { background-color: var(--accent-green); }
+.color-dot.wrong { background-color: var(--accent-orange); }
+
+.placeholder-card {
+    background-color: var(--bg-card);
+    padding: 30px;
+    text-align: center;
+    border-radius: 12px;
+    color: var(--text-muted);
+    border: 1px dashed var(--border-color);
+}
+
+/* BOTTOM NAVIGATION */
+.bottom-nav {
+    background-color: var(--bg-nav);
+    border-top: 1px solid var(--border-color);
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
+    z-index: 10;
+}
+
+.nav-item {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    width: 25%;
+}
+
+.nav-item.active {
+    color: var(--accent-blue);
+}
+
+.nav-icon {
+    font-size: 1.2rem;
+}
+
+.nav-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+}
