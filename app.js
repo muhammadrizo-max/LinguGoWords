@@ -6,7 +6,7 @@ if (tg) {
 }
 
 // Global configuration and live state synchronizer
-const API_BASE_URL = "https://api.linguagowords.com"; 
+const API_BASE_URL = "http://api.f0289.55fh.xyz";; 
 
 // Real-time local state tracking to secure consistent UI rendering
 let userSessionState = {
