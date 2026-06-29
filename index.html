@@ -2,276 +2,144 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LinguaGoWords Platform - Web v1.3.0</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinguaGoWords Platform</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Telegram Web App Script -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        :root {
-            --bg-primary: #0b1329;
-            --bg-secondary: #1c2541;
-            --bg-card: #111c44;
-            --accent-cyan: #00b4d8;
-            --accent-green: #06d6a0;
-            --accent-orange: #ff9f1c;
-            --accent-purple: #7209b7;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --border-color: #1e293b;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
-        body { background-color: var(--bg-primary); color: var(--text-main); padding: 16px 16px 80px 16px; min-height: 100vh; display: flex; flex-direction: column; }
-
-        .web-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid var(--border-color); margin-bottom: 16px; }
-        .brand-title { font-size: 18px; font-weight: 800; color: var(--accent-cyan); }
-        .version-badge { background: rgba(0, 180, 216, 0.1); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; cursor: pointer; user-select: none; }
-
-        .user-profile { display: flex; align-items: center; gap: 12px; background: var(--bg-secondary); padding: 14px; border-radius: 14px; margin-bottom: 16px; }
-        .user-avatar { width: 42px; height: 42px; border-radius: 50%; background: var(--accent-cyan); display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--bg-primary); }
-        .user-meta h4 { font-size: 15px; font-weight: 600; }
-        .user-meta p { font-size: 12px; color: var(--text-muted); }
-
-        .app-screen { display: none; flex-direction: column; gap: 16px; }
-        .active-screen { display: flex; }
-
-        .levels-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 10px; }
-        .level-btn { background: var(--bg-secondary); border: 1px solid var(--border-color); padding: 18px; border-radius: 12px; font-size: 16px; font-weight: bold; color: var(--text-main); cursor: pointer; text-align: center; }
-        .level-btn.locked { opacity: 0.5; background: #0f1424; }
-
-        .word-card { background: var(--bg-secondary); border: 1px solid var(--border-color); padding: 40px 20px; border-radius: 16px; text-align: center; margin-top: 10px; }
-        .word-en { font-size: 32px; font-weight: bold; color: var(--accent-cyan); }
-        .word-uz { font-size: 22px; margin-top: 10px; color: var(--text-main); }
-        .action-btn { background: var(--accent-cyan); color: var(--bg-primary); border: none; padding: 14px; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; }
-
-        .quiz-options { display: flex; flex-direction: column; gap: 10px; width: 100%; margin-top: 10px; }
-        .option-btn { background: var(--bg-secondary); border: 1px solid var(--border-color); padding: 14px; border-radius: 12px; font-size: 15px; color: var(--text-main); text-align: left; cursor: pointer; }
-
-        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        .stat-box { background: var(--bg-secondary); padding: 14px; border-radius: 12px; border-left: 4px solid var(--accent-cyan); }
-        .stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; }
-        .stat-number { font-size: 20px; font-weight: 700; margin-top: 4px; }
-
-        .chart-card { background: var(--bg-secondary); padding: 14px; border-radius: 16px; }
-        .chart-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
-        .chart-holder { position: relative; height: 150px; width: 100%; }
-
-        .streak-container { display: flex; justify-content: space-between; background: rgba(255, 159, 28, 0.1); border: 1px solid var(--accent-orange); padding: 12px; border-radius: 12px; align-items: center; }
-
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--bg-secondary); border-top: 1px solid var(--border-color); display: grid; grid-template-columns: repeat(3, 1fr); padding: 10px 0; z-index: 1000; }
-        .nav-tab { background: transparent; border: none; color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 12px; cursor: pointer; }
-        .nav-tab.active-tab { color: var(--accent-cyan); font-weight: bold; }
-        .nav-icon { font-size: 20px; }
-
-        /* Admin Dashboard UI */
-        .admin-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 10px; }
-        .admin-card { background: var(--bg-card); border: 1px solid var(--accent-orange); padding: 16px; border-radius: 12px; }
-        .admin-value { font-size: 24px; font-weight: bold; color: var(--accent-green); margin-top: 5px; }
-    </style>
 </head>
 <body>
 
-    <div class="web-header">
-        <div class="brand-title">VisionCore Group</div>
-        <div class="version-badge" id="versionBtn" onclick="handleVersionClick()">web v1.3.0</div>
-    </div>
+    <!-- HEADER -->
+    <header class="app-header">
+        <h1 class="brand-title">VisionCore Group</h1>
+        <span id="version-trigger" class="version-badge">web v1.3.0</span>
+    </header>
 
-    <div class="user-profile">
-        <div class="user-avatar" id="uAvatar">M</div>
-        <div class="user-meta">
-            <h4 id="uName">Muhammadrizo</h4>
-            <p id="uId">ID: 6582564319</p>
+    <!-- USER INFO BAR -->
+    <div class="user-info-bar">
+        <div class="avatar-fallback" id="user-avatar">U</div>
+        <div class="user-details">
+            <h3 id="user-name">Yuklanmoqda...</h3>
+            <p>ID: <span id="user-id">000000000</span></p>
         </div>
     </div>
 
-    <!-- SCREENS -->
-    <div id="screenLevels" class="app-screen">
-        <h3 style="color: var(--accent-cyan);" id="levelScreenTitle">Darajani tanlang</h3>
-        <div class="levels-grid" id="levelsContainer"></div>
-    </div>
-
-    <div id="screenWords" class="app-screen active-screen">
-        <h3 style="color: var(--accent-cyan);">📚 Words Ro'yxati</h3>
-        <div class="word-card">
-            <div class="word-en" id="wEn">accomplish</div>
-            <div class="word-uz" id="wUz">bajarmoq, muvaffaqiyatli yakunlamoq</div>
-        </div>
-        <button class="action-btn" onclick="alert('Keyingi so\'z yuklanmoqda...')">Keyingi so'z ➔</button>
-    </div>
-
-    <div id="screenTests" class="app-screen">
-        <h3 style="color: var(--accent-cyan);">📝 Test (Quiz)</h3>
-        <div class="word-card" style="padding: 24px 12px;"><div class="word-en" style="font-size: 26px;">benevolent</div></div>
-        <div class="quiz-options"><button class="option-btn">rahmdil, saxovatli</button><button class="option-btn">shafqatsiz</button></div>
-    </div>
-
-    <div id="screenStats" class="app-screen">
-        <h3 style="color: var(--accent-cyan);">📊 Shaxsiy Statistika</h3>
-        <div class="streak-container">
-            <div>
-                <div style="font-size: 15px; font-weight: bold; color: var(--accent-orange);">🔥 <span id="stkNum">0</span> Kunlik Streak!</div>
-                <div style="font-size: 11px;">Botdagi faollik zanjiri</div>
+    <!-- MAIN CONTENT AREA -->
+    <main class="main-content">
+        
+        <!-- SECTION 1: WORDS (HOME) -->
+        <section id="sec-words" class="content-section active">
+            <h2 class="section-title">Darajani tanlang</h2>
+            <div class="levels-grid">
+                <button class="level-card active-level">A1</button>
+                <button class="level-card locked">A2 <span class="lock-icon">🔒</span></button>
+                <button class="level-card locked">B1 <span class="lock-icon">🔒</span></button>
+                <button class="level-card locked">B2 <span class="lock-icon">🔒</span></button>
+                <button class="level-card locked">C1 <span class="lock-icon">🔒</span></button>
+                <button class="level-card locked">C2 <span class="lock-icon">🔒</span></button>
+                <button class="level-card locked">IELTS <span class="lock-icon">🔒</span></button>
             </div>
-            <div style="font-size: 24px;">🎯</div>
-        </div>
-        <div class="stats-grid">
-            <div class="stat-box" style="border-left-color: var(--accent-green);"><div class="stat-label">Yodlangan so'zlar</div><div class="stat-number" id="stLearned">0</div></div>
-            <div class="stat-box" style="border-left-color: var(--accent-cyan);"><div class="stat-label">Yechilgan testlar</div><div class="stat-number" id="stTests">0</div></div>
-            <div class="stat-box" style="border-left-color: var(--accent-orange);"><div class="stat-label">To'g'rilik ko'rsatkichi</div><div class="stat-number" id="stAccuracy">0%</div></div>
-            <div class="stat-box" style="border-left-color: var(--accent-purple);"><div class="stat-label">Global reyting</div><div class="stat-number" id="stRank">#0</div></div>
-        </div>
-        <div class="chart-card">
-            <div class="chart-title">Haftalik faollik dinamikasi</div>
-            <div class="chart-holder"><canvas id="lineGraphCanvas"></canvas></div>
-        </div>
-        <div class="chart-card">
-            <div class="chart-title">Javoblar balansi</div>
-            <div class="chart-holder"><canvas id="pieChartCanvas"></canvas></div>
-        </div>
-    </div>
+        </section>
 
-    <!-- ==================== SCREEN: ADMIN PANEL WITH TOTAL STATS ==================== -->
-    <div id="screenAdmin" class="app-screen">
-        <h3 style="color: var(--accent-orange);">⚙️ VCG Global Admin Dashboard</h3>
-        <div class="admin-grid">
-            <div class="admin-card">
-                <div class="stat-label">Jami Bot Foydalanuvchilari</div>
-                <div class="admin-value" id="admUsers">Loading...</div>
+        <!-- SECTION 2: TESTS -->
+        <section id="sec-tests" class="content-section">
+            <h2 class="section-title">Testlar bo'limi</h2>
+            <div class="placeholder-card">
+                <p>Tez orada faollashtiriladi...</p>
             </div>
-            <div class="admin-card">
-                <div class="stat-label">Jami Yodlangan So'zlar (Barcha)</div>
-                <div class="admin-value" id="admWords">Loading...</div>
-            </div>
-            <div class="admin-card">
-                <div class="stat-label">Bugun Aktiv Bo'lganlar</div>
-                <div class="admin-value" id="admActive">Loading...</div>
-            </div>
-        </div>
-    </div>
+        </section>
 
-    <!-- Navigation -->
-    <div class="bottom-nav">
-        <button class="nav-tab active-tab" onclick="initiateFeature('Words', this)"><span class="nav-icon">📚</span><span>Words</span></button>
-        <button class="nav-tab" onclick="initiateFeature('Tests', this)"><span class="nav-icon">📝</span><span>Tests</span></button>
-        <button class="nav-tab" onclick="initiateFeature('Stats', this)"><span class="nav-icon">📊</span><span>Statistika</span></button>
-    </div>
-
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-
-        // ⚠️ DIQQAT: Agar Vercel'ga yuklasangiz, 'http://localhost:3000' ni serveringiz IP'siga almashtiring!
-        const API_URL = "http://213.136.85.188:3000"; 
-
-        let versionClicks = 0;
-        let allowedLevels = ['A1']; 
-        const allLevels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2', 'IELTS'];
-        let selectedTargetMode = 'Words';
-        let lineChart = null, pieChart = null;
-
-        function handleVersionClick() {
-            versionClicks++;
-            if (versionClicks === 3) {
-                versionClicks = 0;
-                if (prompt("Admin parolini kiriting:") === "060626") {
-                    showScreen('Admin');
-                    fetchAdminStats();
-                } else { alert("Xato!"); }
-            }
-        }
-
-        function initiateFeature(mode, tabElement) {
-            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active-tab'));
-            tabElement.add ? tabElement.add() : tabElement.classList.add('active-tab');
-            selectedTargetMode = mode;
-            if (mode === 'Stats') { showScreen('Stats'); return; }
-            showScreen('Levels');
-            renderLevelsGrid();
-        }
-
-        function renderLevelsGrid() {
-            const container = document.getElementById('levelsContainer');
-            container.innerHTML = "";
-            allLevels.forEach(lvl => {
-                const btn = document.createElement('div');
-                const isAllowed = allowedLevels.includes(lvl);
-                btn.className = `level-btn ${isAllowed ? '' : 'locked'}`;
-                btn.innerHTML = isAllowed ? lvl : `${lvl} 🔒`;
-                if (isAllowed) { btn.onclick = () => showScreen(selectedTargetMode); }
-                else { btn.onclick = () => tg.showAlert("Bu daraja qulflangan!"); }
-                container.appendChild(btn);
-            });
-        }
-
-        function showScreen(id) {
-            document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active-screen'));
-            document.getElementById('screen' + id).classList.add('active-screen');
-        }
-
-        // BAZADAN USER MA'LUMOTLARINI TORTISH
-        function fetchRealDatabase() {
-            const userId = tg.initDataUnsafe?.user?.id || 6582564319; 
+        <!-- SECTION 3: STATISTIKA -->
+        <section id="sec-statistika" class="content-section">
+            <h2 class="section-title">📊 Shaxsiy Statistika</h2>
             
-            fetch(`${API_URL}/api/user-data?tg_id=${userId}`)
-                .then(res => res.json())
-                .then(data => {
-                    if(data.allowed_levels) allowedLevels = data.allowed_levels;
-                    
-                    document.getElementById('stLearned').textContent = data.stats.learned;
-                    document.getElementById('stTests').textContent = data.stats.tests;
-                    document.getElementById('stAccuracy').textContent = data.stats.accuracy + "%";
-                    document.getElementById('stRank').textContent = data.stats.rank;
-                    document.getElementById('stkNum').textContent = data.stats.streak;
+            <div class="streak-banner">
+                <span class="streak-icon">🔥</span>
+                <div class="streak-text">
+                    <h4><span id="stat-streak">0</span> Kunlik Streak!</h4>
+                    <p>Botdagi faollik zanjiri</p>
+                </div>
+                <span class="target-icon">🎯</span>
+            </div>
 
-                    const correct = Math.round(data.stats.tests * (data.stats.accuracy / 100));
-                    renderCharts(data.chart, correct, (data.stats.tests - correct));
-                })
-                .catch(() => renderCharts([0,0,0,0,0,0,0], 0, 0));
-        }
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <p class="stat-label">YODLANGAN SO'ZLAR</p>
+                    <h3 class="stat-value" id="stat-words">0</h3>
+                </div>
+                <div class="stat-box">
+                    <p class="stat-label">YECHILGAN TESTLAR</p>
+                    <h3 class="stat-value" id="stat-tests">0</h3>
+                </div>
+                <div class="stat-box">
+                    <p class="stat-label">TO'G'RILIK KO'RSATKICHI</p>
+                    <h3 class="stat-value" id="stat-accuracy">0%</h3>
+                </div>
+                <div class="stat-box">
+                    <p class="stat-label">GLOBAL REYTING</p>
+                    <h3 class="stat-value" id="stat-rating">#0</h3>
+                </div>
+            </div>
 
-        // BAZADAN ADMIN STATISTIKASINI TORTISH
-        function fetchAdminStats() {
-            fetch(`${API_URL}/api/admin-stats`)
-                .then(res => res.json())
-                .then(data => {
-                    document.getElementById('admUsers').textContent = data.total_users;
-                    document.getElementById('admWords').textContent = data.total_words_learned;
-                    document.getElementById('admActive').textContent = data.active_today;
-                });
-        }
+            <div class="chart-wrapper">
+                <h4 class="chart-title">Haftalik faollik dinamikasi</h4>
+                <div class="mock-chart-line">
+                    <!-- Dinamik grafik yoki chiziq joylashadi -->
+                    <div class="chart-axis-y"><span>1,0</span><span>0,5</span><span>0</span><span>-0,5</span><span>-1,0</span></div>
+                    <div class="chart-line-path"></div>
+                    <div class="chart-days"><span>Dush</span><span>Sesh</span><span>Chor</span><span>Pay</span><span>Jum</span><span>Shan</span><span>Yak</span></div>
+                </div>
+            </div>
 
-        function renderCharts(lineData, correct, wrong) {
-            const ctxLine = document.getElementById('lineGraphCanvas').getContext('2d');
-            if(lineChart) lineChart.destroy();
-            lineChart = new Chart(ctxLine, {
-                type: 'line',
-                data: {
-                    labels: ['Dush', 'Sesh', 'Chor', 'Pay', 'Jum', 'Shan', 'Yak'],
-                    datasets: [{ data: lineData, borderColor: '#00b4d8', tension: 0.3, fill: true, backgroundColor: 'rgba(0,180,216,0.05)' }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-            });
+            <div class="chart-wrapper">
+                <h4 class="chart-title">Javoblar balansi</h4>
+                <div class="mock-pie-container">
+                    <div class="pie-labels">
+                        <span class="legend-item"><span class="color-dot correct"></span> To'g'ri</span>
+                        <span class="legend-item"><span class="color-dot wrong"></span> Xato</span>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-            const ctxPie = document.getElementById('pieChartCanvas').getContext('2d');
-            if(pieChart) pieChart.destroy();
-            pieChart = new Chart(ctxPie, {
-                type: 'pie',
-                data: {
-                    labels: ["To'g'ri", "Xato"],
-                    datasets: [{ data: [correct, wrong], backgroundColor: ['#06d6a0', '#ff9f1c'] }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: '#fff' } } } }
-            });
-        }
+        <!-- SECTION 4: ADMIN DASHBOARD (HIDDEN BY DEFAULT) -->
+        <section id="sec-admin" class="content-section">
+            <h2 class="section-title admin-title">⚙️ VCG Global Admin Dashboard</h2>
+            <div class="admin-grid">
+                <div class="admin-card">
+                    <p class="admin-label">JAMI BOT FOYDALANUVCHILARI</p>
+                    <h3 class="admin-value" id="adm-total-users">Loading...</h3>
+                </div>
+                <div class="admin-card">
+                    <p class="admin-label">JAMI YODLANGAN SO'ZLAR (BARCHA)</p>
+                    <h3 class="admin-value" id="adm-total-words">Loading...</h3>
+                </div>
+                <div class="admin-card">
+                    <p class="admin-label">BUGUN AKTIV BO'LGANLAR</p>
+                    <h3 class="admin-value" id="adm-today-active">Loading...</h3>
+                </div>
+            </div>
+        </section>
 
-        if(tg.initDataUnsafe?.user) {
-            const u = tg.initDataUnsafe.user;
-            document.getElementById('uName').textContent = u.first_name;
-            document.getElementById('uId').textContent = "ID: " + u.id;
-            document.getElementById('uAvatar').textContent = u.first_name.charAt(0).toUpperCase();
-        }
+    </main>
 
-        fetchRealDatabase();
-    </script>
+    <!-- NAVIGATION BAR -->
+    <nav class="bottom-nav">
+        <button class="nav-item active" data-target="sec-words">
+            <span class="nav-icon">📚</span>
+            <span class="nav-label">Words</span>
+        </button>
+        <button class="nav-item" data-target="sec-tests">
+            <span class="nav-icon">📝</span>
+            <span class="nav-label">Tests</span>
+        </button>
+        <button class="nav-item" data-target="sec-statistika">
+            <span class="nav-icon">📊</span>
+            <span class="nav-label">Statistika</span>
+        </button>
+    </nav>
+
+    <script src="app.js"></script>
 </body>
 </html>
