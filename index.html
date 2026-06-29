@@ -5,52 +5,64 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LinguaGoWords Platform</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Telegram Web App Script -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
 
-    <!-- HEADER -->
+    <!-- NOTIFICATION SYSTEM (TOAST) -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- APP HEADER -->
     <header class="app-header">
         <h1 class="brand-title">VisionCore Group</h1>
         <span id="version-trigger" class="version-badge">web v1.3.0</span>
     </header>
 
-    <!-- USER INFO BAR -->
+    <!-- USER PROFILE BAR -->
     <div class="user-info-bar">
-        <div class="avatar-fallback" id="user-avatar">U</div>
+        <div class="avatar-fallback" id="user-avatar">?</div>
         <div class="user-details">
             <h3 id="user-name">Yuklanmoqda...</h3>
-            <p>ID: <span id="user-id">000000000</span></p>
+            <p>ID: <span id="user-id">0000000000</span></p>
         </div>
     </div>
 
-    <!-- MAIN CONTENT AREA -->
+    <!-- MAIN INTERACTIVE SPACE -->
     <main class="main-content">
         
-        <!-- SECTION 1: WORDS (HOME) -->
+        <!-- SECTION 1: WORDS -->
         <section id="sec-words" class="content-section active">
             <h2 class="section-title">Darajani tanlang</h2>
-            <div class="levels-grid">
-                <button class="level-card active-level">A1</button>
-                <button class="level-card locked">A2 <span class="lock-icon">🔒</span></button>
-                <button class="level-card locked">B1 <span class="lock-icon">🔒</span></button>
-                <button class="level-card locked">B2 <span class="lock-icon">🔒</span></button>
-                <button class="level-card locked">C1 <span class="lock-icon">🔒</span></button>
-                <button class="level-card locked">C2 <span class="lock-icon">🔒</span></button>
-                <button class="level-card locked">IELTS <span class="lock-icon">🔒</span></button>
+            <div class="levels-grid" id="levels-container">
+                <!-- Dinamik darajalar JS orqali boshqariladi -->
+                <button class="level-card active-level" data-level="A1">A1</button>
+                <button class="level-card locked" data-level="A2">A2 <span>🔒</span></button>
+                <button class="level-card locked" data-level="B1">B1 <span>🔒</span></button>
+                <button class="level-card locked" data-level="B2">B2 <span>🔒</span></button>
+                <button class="level-card locked" data-level="C1">C1 <span>🔒</span></button>
+                <button class="level-card locked" data-level="C2">C2 <span>🔒</span></button>
+                <button class="level-card locked" data-level="IELTS">IELTS <span>🔒</span></button>
             </div>
         </section>
 
         <!-- SECTION 2: TESTS -->
         <section id="sec-tests" class="content-section">
-            <h2 class="section-title">Testlar bo'limi</h2>
-            <div class="placeholder-card">
-                <p>Tez orada faollashtiriladi...</p>
+            <h2 class="section-title">📝 Interaktiv Testlar</h2>
+            <div class="test-container" id="test-box">
+                <div class="test-question-card">
+                    <p class="question-meta">Daraja: A1 | Savol: <span id="current-q-num">1</span>/5</p>
+                    <h3 class="question-text" id="question-target">Yuklanmoqda...</h3>
+                </div>
+                <div class="options-grid" id="options-container">
+                    <!-- Variantlar JS ichidan tushadi -->
+                </div>
+                <div class="test-footer-actions">
+                    <button id="btn-next-question" class="action-btn" disabled>Keyingi savol ➡️</button>
+                </div>
             </div>
         </section>
 
-        <!-- SECTION 3: STATISTIKA -->
+        <!-- SECTION 3: USER STATISTIKA -->
         <section id="sec-statistika" class="content-section">
             <h2 class="section-title">📊 Shaxsiy Statistika</h2>
             
@@ -85,47 +97,98 @@
             <div class="chart-wrapper">
                 <h4 class="chart-title">Haftalik faollik dinamikasi</h4>
                 <div class="mock-chart-line">
-                    <!-- Dinamik grafik yoki chiziq joylashadi -->
-                    <div class="chart-axis-y"><span>1,0</span><span>0,5</span><span>0</span><span>-0,5</span><span>-1,0</span></div>
-                    <div class="chart-line-path"></div>
-                    <div class="chart-days"><span>Dush</span><span>Sesh</span><span>Chor</span><span>Pay</span><span>Jum</span><span>Shan</span><span>Yak</span></div>
+                    <div class="chart-axis-y"><span>100</span><span>50</span><span>0</span></div>
+                    <div class="chart-visual-container">
+                        <div class="bar-item" style="--height: 40%"></div>
+                        <div class="bar-item" style="--height: 75%"></div>
+                        <div class="bar-item" style="--height: 20%"></div>
+                        <div class="bar-item" style="--height: 90%"></div>
+                        <div class="bar-item" style="--height: 55%"></div>
+                        <div class="bar-item" style="--height: 0%"></div>
+                        <div class="bar-item" style="--height: 10%"></div>
+                    </div>
+                    <div class="chart-days"><span>Du</span><span>Se</span><span>Ch</span><span>Pa</span><span>Ju</span><span>Sha</span><span>Ya</span></div>
                 </div>
             </div>
 
             <div class="chart-wrapper">
                 <h4 class="chart-title">Javoblar balansi</h4>
-                <div class="mock-pie-container">
+                <div class="progress-balance-container">
+                    <div class="balance-bar">
+                        <div id="bar-correct-fill" class="fill correct" style="width: 50%;"></div>
+                        <div id="bar-wrong-fill" class="fill wrong" style="width: 50%;"></div>
+                    </div>
                     <div class="pie-labels">
-                        <span class="legend-item"><span class="color-dot correct"></span> To'g'ri</span>
-                        <span class="legend-item"><span class="color-dot wrong"></span> Xato</span>
+                        <span class="legend-item"><span class="color-dot correct"></span> To'g'ri (<span id="txt-correct-count">0</span>)</span>
+                        <span class="legend-item"><span class="color-dot wrong"></span> Xato (<span id="txt-wrong-count">0</span>)</span>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- SECTION 4: ADMIN DASHBOARD (HIDDEN BY DEFAULT) -->
+        <!-- SECTION 4: GLOBAL ADMIN DASHBOARD (MUKAMMAL) -->
         <section id="sec-admin" class="content-section">
-            <h2 class="section-title admin-title">⚙️ VCG Global Admin Dashboard</h2>
-            <div class="admin-grid">
-                <div class="admin-card">
+            <div class="admin-header-row">
+                <h2 class="section-title admin-title">⚙️ VCG Global Admin Dashboard</h2>
+                <button class="close-admin-btn" id="btn-close-admin">Chiqish ❌</button>
+            </div>
+            
+            <!-- Tizimli Global Metrikalar -->
+            <div class="admin-main-grid">
+                <div class="admin-card text-center">
                     <p class="admin-label">JAMI BOT FOYDALANUVCHILARI</p>
-                    <h3 class="admin-value" id="adm-total-users">Loading...</h3>
+                    <h3 class="admin-value" id="adm-total-users">0</h3>
                 </div>
-                <div class="admin-card">
-                    <p class="admin-label">JAMI YODLANGAN SO'ZLAR (BARCHA)</p>
-                    <h3 class="admin-value" id="adm-total-words">Loading...</h3>
-                </div>
-                <div class="admin-card">
+                <div class="admin-card text-center">
                     <p class="admin-label">BUGUN AKTIV BO'LGANLAR</p>
-                    <h3 class="admin-value" id="adm-today-active">Loading...</h3>
+                    <h3 class="admin-value text-blue" id="adm-today-active">0</h3>
                 </div>
+                <div class="admin-card text-center">
+                    <p class="admin-label">JAMI LUFIYAT SO'ZLAR (DATABASE)</p>
+                    <h3 class="admin-value text-orange" id="adm-db-words">0</h3>
+                </div>
+                <div class="admin-card text-center">
+                    <p class="admin-label">FOYDALANUVCHILAR JAMI YODLAGAN SO'ZLAR</p>
+                    <h3 class="admin-value text-purple" id="adm-total-learned">0</h3>
+                </div>
+                <div class="admin-card text-center">
+                    <p class="admin-label">UMUMIY BAZADAGI TESTLAR SONI</p>
+                    <h3 class="admin-value" id="adm-total-tests-db">0</h3>
+                </div>
+                <div class="admin-card text-center">
+                    <p class="admin-label">PLATFORMA UMUMIY DAROMADI</p>
+                    <h3 class="admin-value text-green" id="adm-total-revenue">$0</h3>
+                </div>
+            </div>
+
+            <!-- Server va Ma'lumotlar Bazasi Holati statistikasi -->
+            <div class="chart-wrapper admin-meta-card">
+                <h4 class="chart-title text-orange">🔒 Ma'lumotlar Bazasi & Tizim Statistikasi</h4>
+                <table class="admin-table">
+                    <tr>
+                        <td>PostgreSQL Status:</td>
+                        <td class="text-green font-bold" id="adm-db-status">Connected ✅</td>
+                    </tr>
+                    <tr>
+                        <td>O'rtacha API Response Vaqti:</td>
+                        <td id="adm-api-speed">45 ms</td>
+                    </tr>
+                    <tr>
+                        <td>Bloklangan Foydalanuvchilar:</td>
+                        <td class="text-orange font-bold" id="adm-blocked-users">0 ta</td>
+                    </tr>
+                    <tr>
+                        <td>Premium Obunachilar:</td>
+                        <td class="text-blue font-bold" id="adm-premium-users">0 ta</td>
+                    </tr>
+                </table>
             </div>
         </section>
 
     </main>
 
-    <!-- NAVIGATION BAR -->
-    <nav class="bottom-nav">
+    <!-- FOOTER NAV BAR -->
+    <nav class="bottom-nav" id="app-bottom-nav">
         <button class="nav-item active" data-target="sec-words">
             <span class="nav-icon">📚</span>
             <span class="nav-label">Words</span>
